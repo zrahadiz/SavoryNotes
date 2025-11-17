@@ -1,0 +1,37 @@
+const express = require("express");
+const cors = require("cors");
+const connectDB = require("./config/db");
+const dotenv = require("dotenv");
+const cookieParser = require("cookie-parser");
+
+const authRoutes = require("./routes/auth.routes");
+const postRoutes = require("./routes/post.routes");
+
+dotenv.config();
+const port = process.env.PORT || 3000;
+
+const app = express();
+
+console.log("CLIENT_URL:", process.env.CLIENT_URL);
+
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  })
+);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+connectDB();
+
+app.get("/", (req, res) => {
+  res.send("Hello World 222!");
+});
+app.use("/api/auth", authRoutes);
+app.use("/api/posts", postRoutes);
+
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
