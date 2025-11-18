@@ -7,16 +7,22 @@ export const useAuthStore = create((set) => ({
   loading: true,
 
   setUser: (user) => {
-    set({
-      user,
-      isAuthenticated: true,
-    });
+    set({ user, isAuthenticated: true });
+  },
+  checkAuth: async () => {
+    try {
+      const { data } = await api.get("/auth/check");
+      set({ isAuthenticated: data.loggedIn });
+      return data.loggedIn;
+    } catch (e) {
+      set({ isAuthenticated: false });
+      return false;
+    }
   },
 
   fetchUser: async () => {
     try {
-      const { data } = await api.get("/auth/me", { withCredentials: true });
-      console.log(data);
+      const { data } = await api.get("/auth/me");
       set({
         user: data.payload.datas,
         isAuthenticated: true,
@@ -32,11 +38,7 @@ export const useAuthStore = create((set) => ({
   },
 
   logout: async () => {
-    try {
-      await api.post("/auth/logout", {}, { withCredentials: true });
-    } catch (err) {
-      console.log("Logout error", err);
-    }
+    await api.post("/auth/logout");
 
     set({
       user: null,

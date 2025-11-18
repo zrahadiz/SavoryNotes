@@ -2,13 +2,12 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL + "/api",
-  withCredentials: true, // important for cookies
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// separate instance for refresh request
 const refreshApi = axios.create({
   baseURL: import.meta.env.VITE_API_URL + "/api",
   withCredentials: true,
@@ -22,17 +21,17 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // retry only once
+    if (originalRequest.url.includes("/auth/refresh")) {
+      return Promise.reject(error);
+    }
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
-        // refresh token
         await refreshApi.post("/auth/refresh");
 
-        // retry original request
         return api(originalRequest);
       } catch (refreshError) {
-        // refresh failed, redirect to login
         window.location.href = "/login";
         return Promise.reject(refreshError);
       }

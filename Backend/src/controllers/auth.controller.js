@@ -53,7 +53,7 @@ const login = async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: "none",
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
     res.cookie("refreshToken", refreshToken, {
@@ -82,6 +82,12 @@ const login = async (req, res) => {
 
 const logout = (req, res) => {
   res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+  });
+
+  res.clearCookie("refreshToken", {
     httpOnly: true,
     secure: true,
     sameSite: "strict",
@@ -138,10 +144,16 @@ const refreshToken = async (req, res) => {
   }
 };
 
+const checkAuth = async (req, res) => {
+  const accessToken = req.cookies?.accessToken;
+  res.json({ loggedIn: !!accessToken });
+};
+
 module.exports = {
   register,
   login,
   logout,
   me,
   refreshToken,
+  checkAuth,
 };

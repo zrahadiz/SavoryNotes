@@ -228,8 +228,8 @@ export default function RecipesList() {
                 <RecipeCard
                   key={index}
                   recipe={recipe}
-                  showEdit={true}
-                  showDelete={true}
+                  showEdit={isAdmin}
+                  showDelete={isAdmin}
                   onDelete={handleDeleteRecipe}
                 />
               ))}

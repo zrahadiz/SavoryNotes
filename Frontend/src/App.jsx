@@ -16,12 +16,16 @@ import AddRecipes from "@/pages/Recipes/AddRecipes";
 import EditRecipePage from "./pages/Recipes/EditRecipes";
 
 function App() {
-  const { isAuthenticated, fetchUser } = useAuthStore();
+  const { checkAuth, fetchUser } = useAuthStore();
 
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchUser();
+    async function init() {
+      const loggedIn = await checkAuth();
+      if (loggedIn) {
+        await fetchUser();
+      }
     }
+    init();
   }, []);
   return (
     <>
