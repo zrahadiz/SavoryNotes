@@ -103,6 +103,7 @@ const getPosts = async (req, res) => {
     ]);
 
     const pagination = {
+      total: total,
       prev: page > 1 ? page - 1 : null,
       next: page * limit < total ? page + 1 : null,
       max: Math.ceil(total / limit),

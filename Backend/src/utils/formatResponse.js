@@ -14,6 +14,7 @@ const response = (
       message: message,
     },
     pagination: pagination || {
+      total: null,
       prev: null,
       next: null,
       max: null,
