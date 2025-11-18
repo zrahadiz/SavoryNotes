@@ -102,10 +102,10 @@ export default function Header() {
               className="flex items-center space-x-2 group"
               onClick={closeMenu}
             >
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
+              <div className="w-10 h-10 rounded-full bg-linear-to-br from-green-400 to-green-600 flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
                 <span className="text-white text-xl font-bold">🍳</span>
               </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-green-600 to-green-500 bg-clip-text text-transparent">
+              <span className="text-2xl font-bold bg-linear-to-r from-green-600 to-green-500 bg-clip-text text-transparent">
                 SavoryNotes
               </span>
             </Link>
@@ -148,7 +148,7 @@ export default function Header() {
               {!isAuthenticated ? (
                 <Link
                   to="/register"
-                  className="px-6 py-2.5 rounded-full text-white font-semibold bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg"
+                  className="px-6 py-2.5 rounded-full text-white font-semibold bg-linear-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg"
                 >
                   Register
                 </Link>
@@ -156,9 +156,9 @@ export default function Header() {
                 <div className="relative" ref={profileRef}>
                   <button
                     onClick={toggleProfile}
-                    className="flex items-center gap-2 pl-2 pr-4 py-2 rounded-full bg-gradient-to-r from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 transition-all duration-200 group"
+                    className="flex items-center gap-2 pl-2 pr-4 py-2 rounded-full bg-linear-to-r from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 transition-all duration-200 group"
                   >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
+                    <div className="w-8 h-8 rounded-full bg-linear-to-br from-green-500 to-green-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
                       {getInitials(user?.name)}
                     </div>
                     <span className="font-medium text-gray-800 max-w-[120px] truncate">
@@ -174,9 +174,9 @@ export default function Header() {
                   {/* Profile Dropdown */}
                   {profileOpen && (
                     <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-100 rounded-2xl shadow-xl overflow-hidden">
-                      <div className="px-4 py-3 bg-gradient-to-r from-green-50 to-green-100 border-b border-green-200">
+                      <div className="px-4 py-3 bg-linear-to-r from-green-50 to-green-100 border-b border-green-200">
                         <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
+                          <div className="w-12 h-12 rounded-full bg-linear-to-br from-green-500 to-green-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
                             {getInitials(user?.name)}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -237,7 +237,7 @@ export default function Header() {
             mobileMenuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
           }`}
         >
-          <div className="bg-gradient-to-b from-white to-gray-50 border-t border-gray-100 px-4 py-6 space-y-3">
+          <div className="bg-linear-to-b from-white to-gray-50 border-t border-gray-100 px-4 py-6 space-y-3">
             {/* Navigation Links */}
             {navItems.map((item) => {
               const active = isActive(item.path);
@@ -281,15 +281,15 @@ export default function Header() {
               <Link
                 to="/register"
                 onClick={closeMenu}
-                className="block w-full text-center py-3 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-md mt-4"
+                className="block w-full text-center py-3 rounded-xl bg-linear-to-r from-orange-500 to-orange-600 text-white font-semibold hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-md mt-4"
               >
                 Register
               </Link>
             ) : (
               <div className="pt-4 border-t border-gray-200">
-                <div className="px-4 py-3 bg-gradient-to-r from-green-50 to-green-100 rounded-xl mb-3">
+                <div className="px-4 py-3 bg-linear-to-r from-green-50 to-green-100 rounded-xl mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
+                    <div className="w-12 h-12 rounded-full bg-linear-to-br from-green-500 to-green-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
                       {getInitials(user?.name)}
                     </div>
                     <div className="flex-1 min-w-0">

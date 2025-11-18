@@ -9,6 +9,10 @@ const createPost = async (req, res) => {
       title: req.body.title,
       description: req.body.description,
       content: req.body.content,
+      category: req.body.category,
+      time: req.body.time,
+      difficulty: req.body.difficulty,
+      servings: req.body.servings,
       tags: req.body.tags ? JSON.parse(req.body.tags) : [],
       ingredients: req.body.ingredients ? JSON.parse(req.body.ingredients) : [],
       prepTime: req.body.prepTime,
@@ -18,6 +22,45 @@ const createPost = async (req, res) => {
     });
 
     response(201, true, newPost, "Post created successfully", res);
+  } catch (error) {
+    response(500, false, null, error.message, res);
+  }
+};
+
+const updatePost = async (req, res) => {
+  try {
+    // Existing URLs from the client (still want to keep)
+    const existingImages = req.body.existingImages
+      ? JSON.parse(req.body.existingImages)
+      : [];
+
+    // New images uploaded
+    const newImages = req.files ? req.files.map((f) => f.path) : [];
+
+    // Merge old + new
+    const images = [...existingImages, ...newImages];
+
+    const tags = req.body.tags ? JSON.parse(req.body.tags) : undefined;
+    const ingredients = req.body.ingredients
+      ? JSON.parse(req.body.ingredients)
+      : undefined;
+
+    const updateData = {
+      ...req.body,
+      images, // ALWAYS include merged result
+      ...(tags ? { tags } : {}),
+      ...(ingredients ? { ingredients } : {}),
+    };
+
+    const updated = await Post.findOneAndUpdate(
+      { slug: req.params.slug },
+      updateData,
+      { new: true }
+    );
+
+    if (!updated) return response(404, false, null, "Post not found", res);
+
+    response(200, true, updated, "Post updated", res);
   } catch (error) {
     response(500, false, null, error.message, res);
   }
@@ -33,8 +76,16 @@ const getPosts = async (req, res) => {
 
     const query = {};
 
-    if (search) query.$text = { $search: search };
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+        { tags: { $regex: search, $options: "i" } },
+      ];
+    }
+
     if (category && category !== "all") query.category = category;
+
     if (tags) query.tags = { $in: tags.split(",") };
 
     const sortOptions = {
@@ -70,7 +121,23 @@ const getPosts = async (req, res) => {
   }
 };
 
+const getPostBySlug = async (req, res) => {
+  try {
+    const post = await Post.findOne({ slug: req.params.slug });
+
+    if (!post) {
+      return response(404, false, null, "Post Not Found", res);
+    }
+
+    response(200, true, post, "Post retieved", res);
+  } catch (error) {
+    return response(500, false, null, error.message, res);
+  }
+};
+
 module.exports = {
   createPost,
   getPosts,
+  getPostBySlug,
+  updatePost,
 };

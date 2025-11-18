@@ -11,7 +11,9 @@ import Home from "./pages/Home";
 import AppLayout from "./components/Layouts/AppLayout";
 import { useAuthStore } from "./store/authStore";
 import { useEffect } from "react";
-import RecipesPage from "./pages/Recipes";
+import RecipesList from "@/pages/Recipes/RecipesList";
+import AddRecipes from "@/pages/Recipes/AddRecipes";
+import EditRecipePage from "./pages/Recipes/EditRecipes";
 
 function App() {
   const { isAuthenticated, fetchUser } = useAuthStore();
@@ -42,12 +44,30 @@ function App() {
             path="/recipes"
             element={
               <AppLayout>
-                <RecipesPage />
+                <RecipesList />
               </AppLayout>
             }
           />
 
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route
+            path="/add-recipes"
+            element={
+              <AppLayout>
+                <AddRecipes />
+              </AppLayout>
+            }
+          />
+
+          <Route
+            path="/recipes/edit/:slug"
+            element={
+              <AppLayout>
+                <EditRecipePage />
+              </AppLayout>
+            }
+          />
+
+          <Route path="*" element={<Navigate to="/home" replace />} />
         </Routes>
       </Router>
       <CustomToaster />

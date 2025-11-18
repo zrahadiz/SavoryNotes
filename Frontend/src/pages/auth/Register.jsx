@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { FcGoogle } from "react-icons/fc";
 
 export default function Login() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
 
   const [rememberMe, setRememberMe] = useState(false);
@@ -204,7 +205,7 @@ export default function Login() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => navigate("/home")} // navigate to your home page without login
+                    onClick={() => navigate("/home")}
                     className="btn btn-ghost w-full text-gray-700 hover:bg-gray-100 transition"
                   >
                     Continue without login

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import {
   HiSearch,
-  HiFilter,
   HiPlus,
   HiPencil,
   HiTrash,
@@ -17,12 +16,18 @@ import { useAuthStore } from "@/store/authStore";
 import api from "@/api/axios";
 import imgNotFound from "@/assets/imgNotFound.png";
 
-export default function RecipesPage() {
+import Loading from "@/components/Loading";
+import { Link } from "react-router-dom";
+import RecipeCard from "../../components/RecipeCard";
+
+export default function RecipesList() {
   const { user } = useAuthStore();
   const isAdmin = user?.role === "admin";
 
+  const [loadingState, setLoadingState] = useState(false);
+  const [loadingText, setLoadingText] = useState("");
+
   const [recipes, setRecipes] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedDifficulty, setSelectedDifficulty] = useState("all");
@@ -47,14 +52,14 @@ export default function RecipesPage() {
   const sortOptions = [
     { label: "Newest First", value: "newest" },
     { label: "Oldest First", value: "oldest" },
-    { label: "Most Popular", value: "popular" },
-    { label: "A-Z", value: "a-z" },
-    { label: "Z-A", value: "z-a" },
+    { label: "A-Z", value: "az" },
+    { label: "Z-A", value: "za" },
   ];
 
   // Fetch recipes
   const fetchRecipes = async () => {
-    setLoading(true);
+    setLoadingState(true);
+    setLoadingText("Getting Recipes");
     try {
       const params = new URLSearchParams();
 
@@ -82,7 +87,8 @@ export default function RecipesPage() {
       setRecipes([]);
       setTotalRecipes(0);
     } finally {
-      setLoading(false);
+      setLoadingState(false);
+      setLoadingText("");
     }
   };
 
@@ -113,6 +119,8 @@ export default function RecipesPage() {
 
   return (
     <div className="min-h-screen bg-linear-to-b from-white via-green-50 to-white">
+      <Loading status={loadingState} fullscreen text={loadingText} />
+
       {/* Header */}
       <div className="bg-linear-to-r from-green-500 to-green-600 text-white py-12 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -126,13 +134,13 @@ export default function RecipesPage() {
               </p>
             </div>
             {isAdmin && (
-              <button
-                onClick={() => (window.location.href = "/recipes/create")}
+              <Link
+                to="/add-recipes"
                 className="px-6 py-3 bg-white text-green-600 rounded-full font-semibold flex items-center gap-2 hover:bg-green-50 transition shadow-lg cursor-pointer"
               >
                 <HiPlus className="w-5 h-5" />
                 Add Recipe
-              </button>
+              </Link>
             )}
           </div>
         </div>
@@ -224,12 +232,7 @@ export default function RecipesPage() {
         </div>
 
         {/* Recipe Grid */}
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-            <p className="text-gray-500 text-lg">Loading recipes...</p>
-          </div>
-        ) : recipes.length === 0 ? (
+        {recipes.length === 0 ? (
           <div className="text-center py-20">
             <div className="text-6xl mb-4">🍳</div>
             <h3 className="text-2xl font-bold text-gray-700 mb-2">
@@ -242,111 +245,117 @@ export default function RecipesPage() {
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {recipes.map((recipe) => (
-                <div
-                  key={recipe._id}
-                  className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden group"
-                >
-                  {/* Image */}
-                  <div className="relative h-48 overflow-hidden">
-                    <img
-                      src={recipe.images || imgNotFound}
-                      alt={recipe.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      onError={(e) => {
-                        e.target.src = imgNotFound;
-                      }}
-                    />
-                    <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              {recipes.map((recipe, index) => (
+                <RecipeCard
+                  key={index}
+                  recipe={recipe}
+                  showEdit={true}
+                  showDelete={true}
+                />
+                // <div
+                //   key={recipe._id}
+                //   className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden group"
+                // >
+                //   {/* Image */}
+                //   <div className="relative h-48 overflow-hidden">
+                //     <img
+                //       src={recipe.images[0] || imgNotFound}
+                //       alt={recipe.title}
+                //       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                //       onError={(e) => {
+                //         e.target.src = imgNotFound;
+                //       }}
+                //     />
+                //     <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-                    {/* Admin Actions Overlay */}
-                    {isAdmin && (
-                      <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <button
-                          onClick={() =>
-                            (window.location.href = `/recipes/edit/${recipe._id}`)
-                          }
-                          className="p-2 bg-white rounded-full hover:bg-blue-50 transition shadow-lg"
-                          title="Edit"
-                        >
-                          <HiPencil className="w-4 h-4 text-blue-600" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setRecipeToDelete(recipe);
-                            setShowDeleteModal(true);
-                          }}
-                          className="p-2 bg-white rounded-full hover:bg-red-50 transition shadow-lg"
-                          title="Delete"
-                        >
-                          <HiTrash className="w-4 h-4 text-red-600" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                //     {/* Admin Actions Overlay */}
+                //     {isAdmin && (
+                //       <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                //         <button
+                //           onClick={() =>
+                //             (window.location.href = `/recipes/edit/${recipe._id}`)
+                //           }
+                //           className="p-2 bg-white rounded-full hover:bg-blue-50 transition shadow-lg"
+                //           title="Edit"
+                //         >
+                //           <HiPencil className="w-4 h-4 text-blue-600" />
+                //         </button>
+                //         <button
+                //           onClick={() => {
+                //             setRecipeToDelete(recipe);
+                //             setShowDeleteModal(true);
+                //           }}
+                //           className="p-2 bg-white rounded-full hover:bg-red-50 transition shadow-lg"
+                //           title="Delete"
+                //         >
+                //           <HiTrash className="w-4 h-4 text-red-600" />
+                //         </button>
+                //       </div>
+                //     )}
+                //   </div>
 
-                  {/* Content */}
-                  <div className="p-5">
-                    <h3 className="text-lg font-bold text-gray-800 mb-2 line-clamp-2 min-h-[3.5rem]">
-                      {recipe.title}
-                    </h3>
-                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                      {recipe.description}
-                    </p>
+                //   {/* Content */}
+                //   <div className="p-5">
+                //     <h3 className="text-lg font-bold text-gray-800 mb-2 line-clamp-2 min-h-14">
+                //       {recipe.title}
+                //     </h3>
+                //     <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                //       {recipe.description}
+                //     </p>
 
-                    {/* Meta Info */}
-                    <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
-                      {recipe.time && (
-                        <div className="flex items-center gap-1">
-                          <HiClock className="w-4 h-4 text-green-500" />
-                          <span>{recipe.time}</span>
-                        </div>
-                      )}
-                      {recipe.difficulty && (
-                        <div className="flex items-center gap-1">
-                          <HiFire className="w-4 h-4 text-orange-500" />
-                          <span>{recipe.difficulty}</span>
-                        </div>
-                      )}
-                      {recipe.servings && (
-                        <div className="flex items-center gap-1">
-                          <HiUser className="w-4 h-4 text-yellow-500" />
-                          <span>{recipe.servings}</span>
-                        </div>
-                      )}
-                    </div>
+                //     {/* Meta Info */}
+                //     <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
+                //       {recipe.time && (
+                //         <div className="flex items-center gap-1">
+                //           <HiClock className="w-4 h-4 text-green-500" />
+                //           <span>{recipe.time}</span>
+                //         </div>
+                //       )}
+                //       {recipe.difficulty && (
+                //         <div className="flex items-center gap-1">
+                //           <HiFire className="w-4 h-4 text-orange-500" />
+                //           <span>{recipe.difficulty}</span>
+                //         </div>
+                //       )}
+                //       {recipe.servings && (
+                //         <div className="flex items-center gap-1">
+                //           <HiUser className="w-4 h-4 text-yellow-500" />
+                //           <span>{recipe.servings}</span>
+                //         </div>
+                //       )}
+                //     </div>
 
-                    {/* Tags */}
-                    {recipe.tags && recipe.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {recipe.tags.slice(0, 2).map((tag, idx) => (
-                          <span
-                            key={idx}
-                            className="px-2 py-1 bg-orange-100 text-orange-600 text-xs rounded-full font-medium"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                        {recipe.tags.length > 2 && (
-                          <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full font-medium">
-                            +{recipe.tags.length - 2}
-                          </span>
-                        )}
-                      </div>
-                    )}
+                //     {/* Tags */}
+                //     {recipe.tags && recipe.tags.length > 0 && (
+                //       <div className="flex flex-wrap gap-2 mb-4">
+                //         {recipe.tags.slice(0, 2).map((tag, idx) => (
+                //           <span
+                //             key={idx}
+                //             className="px-2 py-1 bg-orange-100 text-orange-600 text-xs rounded-full font-medium"
+                //           >
+                //             {tag}
+                //           </span>
+                //         ))}
+                //         {recipe.tags.length > 2 && (
+                //           <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full font-medium">
+                //             +{recipe.tags.length - 2}
+                //           </span>
+                //         )}
+                //       </div>
+                //     )}
 
-                    {/* View Button */}
-                    <button
-                      onClick={() =>
-                        (window.location.href = `/recipes/${recipe._id}`)
-                      }
-                      className="w-full py-2 bg-linear-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-full font-semibold transition flex items-center justify-center gap-2"
-                    >
-                      <HiEye className="w-4 h-4" />
-                      View Recipe
-                    </button>
-                  </div>
-                </div>
+                //     {/* View Button */}
+                //     <button
+                //       onClick={() =>
+                //         (window.location.href = `/recipes/${recipe._id}`)
+                //       }
+                //       className="w-full py-2 bg-linear-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-full font-semibold transition flex items-center justify-center gap-2"
+                //     >
+                //       <HiEye className="w-4 h-4" />
+                //       View Recipe
+                //     </button>
+                //   </div>
+                // </div>
               ))}
             </div>
 
