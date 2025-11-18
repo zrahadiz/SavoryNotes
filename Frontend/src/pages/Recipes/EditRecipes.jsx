@@ -19,8 +19,6 @@ export default function EditRecipePage() {
   const [loadingState, setLoadingState] = useState(false);
   const [loadingText, setLoadingText] = useState("");
 
-  const [imagePreview, setImagePreview] = useState([]);
-
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -76,8 +74,6 @@ export default function EditRecipePage() {
         cookTime: recipe.cookTime || 0,
         images: recipe.images || [],
       });
-
-      setImagePreview(recipe.images || []);
     } catch (error) {
       console.error("Error fetching recipe:", error);
       toast(
@@ -161,32 +157,6 @@ export default function EditRecipePage() {
     setFormData((prev) => ({
       ...prev,
       ingredients: prev.ingredients.filter((_, i) => i !== index),
-    }));
-  };
-
-  // Handle image upload
-  const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files);
-
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview((prev) => [...prev, reader.result]);
-        setFormData((prev) => ({
-          ...prev,
-          images: [...prev.images, reader.result],
-        }));
-      };
-      reader.readAsDataURL(file);
-    });
-  };
-
-  // Remove image
-  const handleRemoveImage = (index) => {
-    setImagePreview((prev) => prev.filter((_, i) => i !== index));
-    setFormData((prev) => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== index),
     }));
   };
 

@@ -135,9 +135,24 @@ const getPostBySlug = async (req, res) => {
   }
 };
 
+const deletePost = async (req, res) => {
+  try {
+    const post = await Post.findOneAndDelete({ slug: req.params.slug });
+
+    if (!post) {
+      return response(404, false, null, "Post not found", res);
+    }
+
+    response(200, true, null, "Post deleted successfully", res);
+  } catch (error) {
+    response(500, false, null, error.message, res);
+  }
+};
+
 module.exports = {
   createPost,
   getPosts,
   getPostBySlug,
   updatePost,
+  deletePost,
 };

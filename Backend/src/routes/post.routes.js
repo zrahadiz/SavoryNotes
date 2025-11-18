@@ -6,6 +6,7 @@ const {
   getPosts,
   getPostBySlug,
   updatePost,
+  deletePost,
 } = require("../controllers/post.controller");
 const { auth, verifyToken } = require("../middlewares/authorization");
 
@@ -26,5 +27,7 @@ router.put(
   upload.array("images", 5),
   updatePost
 );
+
+router.delete("/:slug", verifyToken, auth("admin"), deletePost);
 
 module.exports = router;
