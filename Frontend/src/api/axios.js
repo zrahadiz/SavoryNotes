@@ -2,36 +2,39 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL + "/api",
+  withCredentials: true, // important for cookies
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// separate instance for refresh request
+const refreshApi = axios.create({
+  baseURL: import.meta.env.VITE_API_URL + "/api",
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
-    if (error.response?.status === 401) {
+    const originalRequest = error.config;
+
+    // retry only once
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
       try {
-        await axios.post(
-          import.meta.env.VITE_API_URL + "/api/auth/refresh",
-          {},
-          { withCredentials: true }
-        );
-        return api(error.config);
-      } catch {
+        // refresh token
+        await refreshApi.post("/auth/refresh");
+
+        // retry original request
+        return api(originalRequest);
+      } catch (refreshError) {
+        // refresh failed, redirect to login
         window.location.href = "/login";
+        return Promise.reject(refreshError);
       }
     }
 

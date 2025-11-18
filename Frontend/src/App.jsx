@@ -9,8 +9,18 @@ import Register from "./pages/auth/Register";
 import CustomToaster from "./components/CustomToaster";
 import Home from "./pages/Home";
 import AppLayout from "./components/Layouts/AppLayout";
+import { useAuthStore } from "./store/authStore";
+import { useEffect } from "react";
+import RecipesPage from "./pages/Recipes";
 
 function App() {
+  const { isAuthenticated, fetchUser } = useAuthStore();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchUser();
+    }
+  }, []);
   return (
     <>
       <Router>
@@ -24,6 +34,15 @@ function App() {
             element={
               <AppLayout>
                 <Home />
+              </AppLayout>
+            }
+          />
+
+          <Route
+            path="/recipes"
+            element={
+              <AppLayout>
+                <RecipesPage />
               </AppLayout>
             }
           />

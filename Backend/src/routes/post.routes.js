@@ -12,6 +12,6 @@ router.post(
   createPost
 );
 
-router.get("/", verifyToken, getPosts);
+router.get("/", getPosts);
 
 module.exports = router;

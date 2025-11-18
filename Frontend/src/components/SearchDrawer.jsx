@@ -1,207 +1,285 @@
 import { useState, useEffect } from "react";
 import {
-  HiClock,
-  HiFilter,
-  HiFire,
-  HiSearch,
-  HiUser,
   HiX,
+  HiSearch,
+  HiFilter,
+  HiClock,
+  HiFire,
+  HiUser,
+  HiChevronLeft,
+  HiChevronRight,
 } from "react-icons/hi";
+import api from "@/api/axios";
 
-export default function SearchDrawer({ isOpen, onClose, recipes }) {
+export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedFilters, setSelectedFilters] = useState({
-    diet: "all",
+    category: "all",
     difficulty: "all",
   });
+  const [recipes, setRecipes] = useState([]);
+  const [totalRecipes, setTotalRecipes] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const recipesPerPage = 6;
+  const totalPages = Math.ceil(totalRecipes / recipesPerPage);
 
-  const filteredRecipes = recipes.filter((recipe) => {
-    const matchesSearch =
-      recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      recipe.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      recipe.tags?.some((tag) =>
-        tag.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+  const fetchRecipes = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
 
-    const matchesDiet =
-      selectedFilters.diet === "all" || recipe.diet === selectedFilters.diet;
-    const matchesDifficulty =
-      selectedFilters.difficulty === "all" ||
-      recipe.difficulty?.toLowerCase() === selectedFilters.difficulty;
+      if (selectedFilters.category !== "all") {
+        params.append("category", selectedFilters.category.toLowerCase());
+      }
 
-    return matchesSearch && matchesDiet && matchesDifficulty;
-  });
+      // if (selectedFilters.difficulty !== "all") {
+      //   params.append("difficulty", selectedFilters.difficulty.toLowerCase());
+      // }
 
-  const totalPages = Math.ceil(filteredRecipes.length / recipesPerPage);
-  const startIndex = (currentPage - 1) * recipesPerPage;
-  const currentRecipes = filteredRecipes.slice(
-    startIndex,
-    startIndex + recipesPerPage
-  );
+      if (searchQuery.trim()) {
+        params.append("search", searchQuery.trim());
+      }
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, selectedFilters]);
+      params.append("page", currentPage);
+      params.append("limit", recipesPerPage);
+
+      const { data } = await api.get(`/posts?${params.toString()}`);
+      console.log("Fetched recipes:", data);
+
+      setRecipes(data.payload.datas || []);
+      setTotalRecipes(data.payload.total || data.payload.datas?.length || 0);
+    } catch (error) {
+      console.error("Error fetching recipes:", error);
+      setRecipes([]);
+      setTotalRecipes(0);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
+      fetchRecipes();
     }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
+  }, [isOpen, searchQuery, selectedFilters, currentPage]);
+
+  useEffect(() => {
+    if (currentPage !== 1) {
+      setCurrentPage(1);
+    }
+  }, [searchQuery, selectedFilters]);
+
+  useEffect(() => {
+    if (initialSearch) {
+      setSearchQuery(initialSearch);
+    }
+  }, [initialSearch]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setSearchQuery("");
+      setSelectedFilters({ category: "all", difficulty: "all" });
+      setCurrentPage(1);
+    }
   }, [isOpen]);
 
   return (
     <>
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/20 bg-opacity-50 z-40 transition-opacity"
+          className="fixed inset-0 bg-black/20 bg-opacity-50 z-40 transition-opacity backdrop-blur-xs"
           onClick={onClose}
         />
       )}
 
       <div
         className={`fixed left-0 right-0 bottom-0 
-        bg-white rounded-t-2xl shadow-xl z-50
-        h-[75vh]
+        bg-white rounded-t-2xl md:rounded-t-3xl shadow-xl z-50
+        h-[85vh] md:h-[75vh]
         transform transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-y-0" : "translate-y-full"
         }`}
       >
         <div className="h-full flex flex-col">
-          <div className="p-6 border-b border-gray-200 bg-green-50">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-green-500">
+          {/* Header Section */}
+          <div className="px-4 sm:px-6 pt-3 pb-4 sm:pb-6 border-b border-gray-200 bg-green-50 shrink-0">
+            {/* Drag Handle for Mobile */}
+            <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-4 md:hidden"></div>
+
+            <div className="flex justify-between items-center mb-3 sm:mb-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-green-500">
                 Search Recipes
               </h2>
               <button
                 onClick={onClose}
-                className="p-2 rounded-full hover:bg-gray-200 transition"
+                className="p-2 rounded-full hover:bg-gray-200 transition touch-manipulation"
+                aria-label="Close search"
               >
-                <HiX className="w-6 h-6" />
+                <HiX className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
             </div>
 
-            <div className="relative mb-4">
-              <HiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            {/* Search Input */}
+            <div className="relative mb-3 sm:mb-4">
+              <HiSearch className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
               <input
                 type="text"
-                placeholder="Search by name, ingredient, or tag..."
+                placeholder="Search recipes..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 rounded-full border-2 border-gray-200 focus:border-green-500 outline-none transition"
+                className="w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3 text-sm sm:text-base rounded-full border-2 border-gray-200 focus:border-green-500 outline-none transition"
               />
             </div>
 
-            <div className="flex flex-wrap gap-3">
+            {/* Filters */}
+            <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <HiFilter className="w-4 h-4 text-gray-600" />
-                <span className="text-sm font-semibold text-gray-600">
+                <span className="text-xs sm:text-sm font-semibold text-gray-600">
                   Filters:
                 </span>
               </div>
 
-              <select
-                value={selectedFilters.diet}
-                onChange={(e) =>
-                  setSelectedFilters((prev) => ({
-                    ...prev,
-                    diet: e.target.value,
-                  }))
-                }
-                className="px-4 py-1 rounded-full border-2 border-green-500 text-sm outline-none cursor-pointer"
-              >
-                <option value="all">All Diets</option>
-                <option value="vegan">Vegan</option>
-                <option value="vegetarian">Vegetarian</option>
-                <option value="keto">Keto</option>
-              </select>
+              <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
+                <select
+                  value={selectedFilters.category}
+                  onChange={(e) =>
+                    setSelectedFilters((prev) => ({
+                      ...prev,
+                      category: e.target.value,
+                    }))
+                  }
+                  className="select rounded-full border-2 border-primary text-xs sm:text-sm outline-none cursor-pointer touch-manipulation w-full sm:w-auto"
+                >
+                  <option value="all">All Categories</option>
+                  <option value="breakfast">Breakfast</option>
+                  <option value="lunch">Lunch</option>
+                  <option value="dinner">Dinner</option>
+                  <option value="dessert">Dessert</option>
+                  <option value="snack">Snack</option>
+                </select>
 
-              <select
-                value={selectedFilters.difficulty}
-                onChange={(e) =>
-                  setSelectedFilters((prev) => ({
-                    ...prev,
-                    difficulty: e.target.value,
-                  }))
-                }
-                className="px-4 py-1 rounded-full border-2 border-orange-500 text-sm outline-none cursor-pointer"
-              >
-                <option value="all">All Levels</option>
-                <option value="easy">Easy</option>
-                <option value="medium">Medium</option>
-                <option value="hard">Hard</option>
-              </select>
+                <select
+                  value={selectedFilters.difficulty}
+                  onChange={(e) =>
+                    setSelectedFilters((prev) => ({
+                      ...prev,
+                      difficulty: e.target.value,
+                    }))
+                  }
+                  className="select rounded-full border-2 border-secondary text-xs sm:text-sm outline-none cursor-pointer touch-manipulation w-full sm:w-auto"
+                >
+                  <option value="all">All Levels</option>
+                  <option value="easy">Easy</option>
+                  <option value="medium">Medium</option>
+                  <option value="hard">Hard</option>
+                </select>
+              </div>
+
+              <p className="text-xs sm:text-sm text-gray-600">
+                Found{" "}
+                <span className="font-bold text-green-500">{totalRecipes}</span>{" "}
+                recipes
+              </p>
             </div>
-
-            <p className="text-sm text-gray-600 mt-3">
-              Found{" "}
-              <span className="font-bold text-green-500">
-                {filteredRecipes.length}
-              </span>{" "}
-              recipes
-            </p>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6">
-            {currentRecipes.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-gray-500 text-lg">
-                  No recipes found. Try adjusting your search or filters.
+          {/* Scrollable Content */}
+          <div className="flex-1 overflow-y-auto overscroll-contain px-4 sm:px-6 py-4 sm:py-6">
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-16 sm:py-20">
+                <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p className="text-gray-500 text-sm sm:text-base">
+                  Loading recipes...
+                </p>
+              </div>
+            ) : recipes.length === 0 ? (
+              <div className="text-center py-12 sm:py-16">
+                <div className="text-5xl sm:text-6xl mb-4">🔍</div>
+                <p className="text-gray-500 text-base sm:text-lg">
+                  No recipes found
+                </p>
+                <p className="text-gray-400 text-sm sm:text-base mt-2">
+                  Try adjusting your search or filters
                 </p>
               </div>
             ) : (
-              <div className="grid gap-4">
-                {currentRecipes.map((recipe) => (
+              <div className="grid gap-3 sm:gap-4">
+                {recipes.map((recipe) => (
                   <div
-                    key={recipe.id}
-                    className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-100"
+                    key={recipe._id}
+                    className="bg-white rounded-xl sm:rounded-2xl shadow-md hover:shadow-xl active:shadow-lg transition-all duration-300 transform hover:-translate-y-1 active:translate-y-0 cursor-pointer border border-gray-100"
+                    onClick={() => {
+                      // Add navigation to recipe detail page
+                      // navigate(`/recipe/${recipe._id}`);
+                    }}
                   >
-                    <div className="flex gap-4 p-4">
-                      <div className="flex-shrink-0">
+                    <div className="flex gap-3 sm:gap-4 p-3 sm:p-4">
+                      {/* Image */}
+                      <div className="shrink-0">
                         <img
-                          src={recipe.image}
+                          src={recipe.images}
                           alt={recipe.title}
-                          className="w-24 h-24 rounded-xl object-cover"
+                          className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg sm:rounded-xl object-cover"
                         />
                       </div>
+
+                      {/* Content */}
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-bold mb-1 truncate text-gray-800">
+                        <h3 className="text-base sm:text-lg font-bold mb-1 truncate text-gray-800">
                           {recipe.title}
                         </h3>
-                        <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                        <p className="text-xs sm:text-sm text-gray-600 mb-2 line-clamp-2">
                           {recipe.description}
                         </p>
-                        <div className="flex items-center gap-3 text-xs text-gray-500 mb-2">
-                          <div className="flex items-center gap-1">
-                            <HiClock className="w-3 h-3" />
-                            <span>{recipe.time}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <HiFire className="w-3 h-3" />
-                            <span>{recipe.difficulty}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <HiUser className="w-3 h-3" />
-                            <span>{recipe.servings}</span>
-                          </div>
+
+                        {/* Meta Info */}
+                        <div className="flex items-center gap-2 sm:gap-3 text-xs text-gray-500 mb-2">
+                          {recipe.time && (
+                            <div className="flex items-center gap-1">
+                              <HiClock className="w-3 h-3" />
+                              <span className="hidden xs:inline">
+                                {recipe.time}
+                              </span>
+                            </div>
+                          )}
+                          {recipe.difficulty && (
+                            <div className="flex items-center gap-1">
+                              <HiFire className="w-3 h-3" />
+                              <span className="hidden sm:inline">
+                                {recipe.difficulty}
+                              </span>
+                              <span className="sm:hidden">
+                                {recipe.difficulty[0]}
+                              </span>
+                            </div>
+                          )}
+                          {recipe.servings && (
+                            <div className="flex items-center gap-1">
+                              <HiUser className="w-3 h-3" />
+                              <span>{recipe.servings}</span>
+                            </div>
+                          )}
                         </div>
-                        {recipe.tags && (
+
+                        {/* Tags */}
+                        {recipe.tags && recipe.tags.length > 0 && (
                           <div className="flex flex-wrap gap-1">
-                            {recipe.tags.map((tag, idx) => (
+                            {recipe.tags.slice(0, 3).map((tag, idx) => (
                               <span
                                 key={idx}
-                                className="px-2 py-1 rounded-full text-xs text-white font-medium bg-orange-500"
+                                className="px-2 py-0.5 sm:py-1 rounded-full text-xs text-white font-medium bg-orange-500"
                               >
                                 {tag}
                               </span>
                             ))}
+                            {recipe.tags.length > 3 && (
+                              <span className="px-2 py-0.5 sm:py-1 rounded-full text-xs text-gray-600 font-medium bg-gray-200">
+                                +{recipe.tags.length - 3}
+                              </span>
+                            )}
                           </div>
                         )}
                       </div>
@@ -212,9 +290,49 @@ export default function SearchDrawer({ isOpen, onClose, recipes }) {
             )}
           </div>
 
-          {totalPages > 1 && (
-            <div className="p-6 border-t border-gray-200 bg-gray-50">
-              <div className="flex items-center justify-between">
+          {/* Pagination */}
+          {totalPages > 1 && !loading && (
+            <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 bg-gray-50 shrink-0">
+              {/* Mobile Pagination - Simplified */}
+              <div className="flex sm:hidden items-center justify-between gap-2">
+                <button
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(1, prev - 1))
+                  }
+                  disabled={currentPage === 1}
+                  className="flex items-center gap-1 px-3 py-2 rounded-full font-semibold text-sm transition disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+                  style={{
+                    backgroundColor: currentPage === 1 ? "#e5e7eb" : "#4CAF50",
+                    color: currentPage === 1 ? "#9ca3af" : "white",
+                  }}
+                >
+                  <HiChevronLeft className="w-4 h-4" />
+                  Prev
+                </button>
+
+                <span className="text-sm font-medium text-gray-600">
+                  {currentPage} / {totalPages}
+                </span>
+
+                <button
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                  }
+                  disabled={currentPage === totalPages}
+                  className="flex items-center gap-1 px-3 py-2 rounded-full font-semibold text-sm transition disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+                  style={{
+                    backgroundColor:
+                      currentPage === totalPages ? "#e5e7eb" : "#4CAF50",
+                    color: currentPage === totalPages ? "#9ca3af" : "white",
+                  }}
+                >
+                  Next
+                  <HiChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Desktop Pagination - Full */}
+              <div className="hidden sm:flex items-center justify-between">
                 <button
                   onClick={() =>
                     setCurrentPage((prev) => Math.max(1, prev - 1))
@@ -226,13 +344,24 @@ export default function SearchDrawer({ isOpen, onClose, recipes }) {
                     color: currentPage === 1 ? "#9ca3af" : "white",
                   }}
                 >
-                  <ChevronLeft className="w-4 h-4" />
+                  <HiChevronLeft className="w-4 h-4" />
                   Previous
                 </button>
 
                 <div className="flex items-center gap-2">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                    (page) => (
+                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                    let page;
+                    if (totalPages <= 5) {
+                      page = i + 1;
+                    } else if (currentPage <= 3) {
+                      page = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      page = totalPages - 4 + i;
+                    } else {
+                      page = currentPage - 2 + i;
+                    }
+
+                    return (
                       <button
                         key={page}
                         onClick={() => setCurrentPage(page)}
@@ -247,8 +376,8 @@ export default function SearchDrawer({ isOpen, onClose, recipes }) {
                       >
                         {page}
                       </button>
-                    )
-                  )}
+                    );
+                  })}
                 </div>
 
                 <button
@@ -264,12 +393,9 @@ export default function SearchDrawer({ isOpen, onClose, recipes }) {
                   }}
                 >
                   Next
-                  <ChevronRight className="w-4 h-4" />
+                  <HiChevronRight className="w-4 h-4" />
                 </button>
               </div>
-              <p className="text-center text-sm text-gray-600 mt-3">
-                Page {currentPage} of {totalPages}
-              </p>
             </div>
           )}
         </div>

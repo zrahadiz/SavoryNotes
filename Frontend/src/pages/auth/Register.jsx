@@ -202,6 +202,13 @@ export default function Login() {
                     <FcGoogle className="w-5 h-5" />
                     Continue with Google
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/home")} // navigate to your home page without login
+                    className="btn btn-ghost w-full text-gray-700 hover:bg-gray-100 transition"
+                  >
+                    Continue without login
+                  </button>
                 </div>
 
                 <p className="text-center text-sm text-gray-600 mt-6">
@@ -216,11 +223,6 @@ export default function Login() {
                 </p>
               </div>
             </div>
-
-            <p className="text-center text-xs text-gray-500 mt-8">
-              By signing up, you agree to our Terms of Service and Privacy
-              Policy
-            </p>
           </div>
         </motion.div>
       </div>

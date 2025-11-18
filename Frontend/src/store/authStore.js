@@ -15,10 +15,10 @@ export const useAuthStore = create((set) => ({
 
   fetchUser: async () => {
     try {
-      const res = await api.get("/auth/me", { withCredentials: true });
-
+      const { data } = await api.get("/auth/me", { withCredentials: true });
+      console.log(data);
       set({
-        user: res.data.user,
+        user: data.payload.datas,
         isAuthenticated: true,
         loading: false,
       });

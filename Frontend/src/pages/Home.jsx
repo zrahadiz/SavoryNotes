@@ -31,8 +31,11 @@ const features = [
 
 export default function SavoryNotesHome() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [initialSearch, setInitialSearch] = useState("");
 
-  const [popularRecipes, setPopularRecipes] = useState([]);
+  const [featuredRecipes, setFeaturedRecipes] = useState([]);
+  const [recipes, setRecipes] = useState([]);
+
   const categoryList = {
     ALL: "all",
     ENTREE: "entree",
@@ -44,34 +47,38 @@ export default function SavoryNotesHome() {
   };
   const [activeFilter, setActiveFilter] = useState("all");
 
-  const getPosts = async () => {
+  const featuredPosts = async () => {
+    const params = new URLSearchParams();
+    params.append("limit", 10);
+    try {
+      const { data } = await api.get(`/posts?${params.toString()}`);
+      console.log(data);
+      setFeaturedRecipes(data.payload.datas);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const getRecipes = async () => {
     const params = new URLSearchParams();
     if (activeFilter !== "all") {
       params.append("category", activeFilter.toLowerCase());
     }
-
-    // if (selectedTags.length > 0) {
-    //   params.append("tags", selectedTags.join(","));
-    // }
-
-    // if (searchTerm) {
-    //   params.append("search", searchTerm);
-    // }
-
-    // params.append("sort", sort);
-    // params.append("page", page);
-    // params.append("limit", 10);
     try {
       const { data } = await api.get(`/posts?${params.toString()}`);
       console.log(data);
-      setPopularRecipes(data.payload.datas);
+      setRecipes(data.payload.datas);
     } catch (error) {
       console.error(error);
     }
   };
 
   useEffect(() => {
-    getPosts();
+    featuredPosts();
+  }, []);
+
+  useEffect(() => {
+    getRecipes();
   }, [activeFilter]);
 
   return (
@@ -114,41 +121,42 @@ export default function SavoryNotesHome() {
 
       {/* Search Section */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 mb-16">
-        <div className="bg-white rounded-2xl shadow-xl p-6">
-          {/* Search Bar Row */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-            <div className="flex items-center flex-1 bg-gray-100 rounded-full px-4 py-3 shadow-sm hover:shadow-md transition">
-              <HiSearch className="w-6 h-6 text-gray-400 shrink-0" />
-              <input
-                type="text"
-                placeholder="Search for recipes... (e.g., 'gluten-free pasta')"
-                className="flex-1 bg-transparent outline-none text-base sm:text-lg ml-3"
-              />
-            </div>
-
-            <button
-              onClick={() => setIsSearchOpen(true)}
-              className="px-8 py-3 rounded-full text-white font-semibold bg-orange-500 hover:bg-orange-600 transition shadow-md hover:shadow-lg"
-            >
-              Search
-            </button>
+        <div className="bg-white rounded-3xl shadow-xl p-6">
+          {/* Search Trigger */}
+          <div
+            onClick={() => {
+              setInitialSearch("");
+              setIsSearchOpen(true);
+            }}
+            className="flex items-center bg-gray-100 hover:bg-gray-200 transition cursor-pointer rounded-full px-5 py-4 shadow-sm hover:shadow-md"
+          >
+            <HiSearch className="w-6 h-6 text-gray-500" />
+            <span className="ml-3 text-gray-600 text-lg font-medium">
+              Search for recipes...
+            </span>
           </div>
 
-          {/* Tags */}
+          {/* Quick Filters */}
           <div className="flex flex-wrap gap-2 mt-5">
-            {["Vegan", "Keto", "Gluten-Free", "Dairy-Free"].map((tag) => (
-              <span
-                key={tag}
-                className="px-4 py-1.5 rounded-full text-sm border-2 border-green-500 text-green-500 cursor-pointer hover:bg-green-500 hover:text-white transition font-medium"
-              >
-                {tag}
-              </span>
-            ))}
+            {["Vegan", "Keto", "Gluten-Free", "Dairy-Free", "Noodle"].map(
+              (tag) => (
+                <button
+                  key={tag}
+                  onClick={() => {
+                    setInitialSearch(tag); // pass tag to drawer
+                    setIsSearchOpen(true); // open drawer
+                  }}
+                  className="px-4 py-1.5 rounded-full text-sm border border-green-500 text-green-600 cursor-pointer hover:bg-green-500 hover:text-white transition font-medium"
+                >
+                  {tag}
+                </button>
+              )
+            )}
           </div>
         </div>
       </section>
 
-      {/* Popular Recipes */}
+      {/* Featured Recipes */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="text-left mb-10">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-green-500">
@@ -159,7 +167,7 @@ export default function SavoryNotesHome() {
           </p>
         </div>
 
-        <RecipeCarousel popularRecipes={popularRecipes} />
+        <RecipeCarousel popularRecipes={featuredRecipes} />
       </section>
 
       {/* List Recipes Section */}
@@ -197,7 +205,7 @@ export default function SavoryNotesHome() {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-          {popularRecipes.length === 0 ? (
+          {recipes.length === 0 ? (
             <div className="text-center py-20">
               <h2 className="text-2xl font-semibold text-gray-600">
                 No recipes found
@@ -208,7 +216,7 @@ export default function SavoryNotesHome() {
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {popularRecipes.map((recipe, index) => (
+              {recipes.map((recipe, index) => (
                 <RecipeCard key={index} recipe={recipe} />
               ))}
             </div>
@@ -315,7 +323,7 @@ export default function SavoryNotesHome() {
       <SearchDrawer
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
-        recipes={popularRecipes}
+        initialSearch={initialSearch}
       />
     </div>
   );
