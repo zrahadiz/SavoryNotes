@@ -34,9 +34,9 @@ export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
         params.append("category", selectedFilters.category.toLowerCase());
       }
 
-      // if (selectedFilters.difficulty !== "all") {
-      //   params.append("difficulty", selectedFilters.difficulty.toLowerCase());
-      // }
+      if (selectedFilters.difficulty !== "all") {
+        params.append("difficulty", selectedFilters.difficulty.toLowerCase());
+      }
 
       if (searchQuery.trim()) {
         params.append("search", searchQuery.trim());

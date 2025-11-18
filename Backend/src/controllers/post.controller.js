@@ -72,7 +72,7 @@ const getPosts = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const { search, category, tags, sort } = req.query;
+    const { search, category, difficulty, sort } = req.query;
 
     const query = {};
 
@@ -86,7 +86,7 @@ const getPosts = async (req, res) => {
 
     if (category && category !== "all") query.category = category;
 
-    if (tags) query.tags = { $in: tags.split(",") };
+    if (difficulty && difficulty !== "all") query.difficulty = difficulty;
 
     const sortOptions = {
       newest: { createdAt: -1 },

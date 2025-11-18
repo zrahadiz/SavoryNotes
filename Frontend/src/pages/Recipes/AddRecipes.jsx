@@ -1,16 +1,28 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  HiPlus,
-  HiX,
-  HiPhotograph,
-  HiArrowLeft,
-  HiCheck,
-} from "react-icons/hi";
+
 import api from "@/api/axios";
-import ImageUploader from "../../components/ImageUploader";
-import Loading from "@/components/Loading";
+
 import { toast } from "@/lib/toast";
+import ImageUploader from "@/components/ImageUploader";
+import Loading from "@/components/Loading";
+
+import { HiPlus, HiX, HiArrowLeft, HiCheck } from "react-icons/hi";
+
+const categories = [
+  { value: "entree", label: "Entree" },
+  { value: "breakfast", label: "Breakfast" },
+  { value: "lunch", label: "Lunch" },
+  { value: "dinner", label: "Dinner" },
+  { value: "dessert", label: "Dessert" },
+  { value: "quickBites", label: "Quick Bites" },
+];
+
+const difficulties = [
+  { value: "easy", label: "Easy", emoji: "😊" },
+  { value: "medium", label: "Medium", emoji: "🤔" },
+  { value: "hard", label: "Hard", emoji: "😰" },
+];
 
 export default function CreateRecipePage() {
   const navigate = useNavigate();
@@ -22,7 +34,7 @@ export default function CreateRecipePage() {
     title: "",
     description: "",
     content: "",
-    category: "lunch",
+    category: "enttree",
     time: 0,
     difficulty: "easy",
     servings: 1,
@@ -36,22 +48,6 @@ export default function CreateRecipePage() {
   const [currentTag, setCurrentTag] = useState("");
   const [currentIngredient, setCurrentIngredient] = useState("");
 
-  const categories = [
-    { value: "entree", label: "Entree" },
-    { value: "breakfast", label: "Breakfast" },
-    { value: "lunch", label: "Lunch" },
-    { value: "dinner", label: "Dinner" },
-    { value: "dessert", label: "Dessert" },
-    { value: "quickBites", label: "Quick Bites" },
-  ];
-
-  const difficulties = [
-    { value: "easy", label: "Easy", emoji: "😊" },
-    { value: "medium", label: "Medium", emoji: "🤔" },
-    { value: "hard", label: "Hard", emoji: "😰" },
-  ];
-
-  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -60,7 +56,6 @@ export default function CreateRecipePage() {
     }));
   };
 
-  // Calculate total time when prep or cook time changes
   const handleTimeChange = (e) => {
     const { name, value } = e.target;
     const numValue = parseInt(value) || 0;
@@ -68,7 +63,6 @@ export default function CreateRecipePage() {
     setFormData((prev) => {
       const newData = { ...prev, [name]: numValue };
 
-      // Calculate total time
       const prepTime = name === "prepTime" ? numValue : prev.prepTime;
       const cookTime = name === "cookTime" ? numValue : prev.cookTime;
       newData.time = prepTime + cookTime;
@@ -77,7 +71,6 @@ export default function CreateRecipePage() {
     });
   };
 
-  // Add tag
   const handleAddTag = (e) => {
     e.preventDefault();
     if (currentTag.trim() && !formData.tags.includes(currentTag.trim())) {
@@ -89,7 +82,6 @@ export default function CreateRecipePage() {
     }
   };
 
-  // Remove tag
   const handleRemoveTag = (tagToRemove) => {
     setFormData((prev) => ({
       ...prev,
@@ -97,7 +89,6 @@ export default function CreateRecipePage() {
     }));
   };
 
-  // Add ingredient
   const handleAddIngredient = (e) => {
     e.preventDefault();
     if (currentIngredient.trim()) {
@@ -109,7 +100,6 @@ export default function CreateRecipePage() {
     }
   };
 
-  // Remove ingredient
   const handleRemoveIngredient = (index) => {
     setFormData((prev) => ({
       ...prev,
@@ -117,11 +107,9 @@ export default function CreateRecipePage() {
     }));
   };
 
-  // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
     if (!formData.title.trim()) {
       toast("Please enter a recipe title", {
         type: "warning",
@@ -152,19 +140,17 @@ export default function CreateRecipePage() {
     try {
       const submissionData = new FormData();
 
-      // Append text fields
       Object.entries(formData).forEach(([key, value]) => {
-        if (key === "images") return; // skip images for now
+        if (key === "images") return;
         if (Array.isArray(value)) {
-          submissionData.append(key, JSON.stringify(value)); // convert arrays to JSON strings
+          submissionData.append(key, JSON.stringify(value));
         } else {
           submissionData.append(key, value);
         }
       });
 
-      // Append images
       formData.images.forEach((file) => {
-        submissionData.append("images", file); // multiple files allowed
+        submissionData.append("images", file);
       });
       console.log(submissionData);
 
@@ -193,7 +179,7 @@ export default function CreateRecipePage() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-white via-green-50 to-white">
+    <div className="min-h-screen bg-linear-to-b from-white to-green-50">
       <Loading status={loadingState} fullscreen text={loadingText} />
 
       {/* Header */}
@@ -214,15 +200,13 @@ export default function CreateRecipePage() {
       </div>
 
       {/* Form */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Basic Information */}
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
               📝 Basic Information
             </h2>
 
-            {/* Title */}
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Recipe Title *
@@ -237,7 +221,6 @@ export default function CreateRecipePage() {
               />
             </div>
 
-            {/* Description */}
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Short Description *
@@ -252,7 +235,6 @@ export default function CreateRecipePage() {
               />
             </div>
 
-            {/* Category and Difficulty */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -300,7 +282,6 @@ export default function CreateRecipePage() {
               </div>
             </div>
 
-            {/* Time and Servings */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -355,7 +336,6 @@ export default function CreateRecipePage() {
             )}
           </div>
 
-          {/* Ingredients */}
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
               🥗 Ingredients
@@ -404,7 +384,6 @@ export default function CreateRecipePage() {
             )}
           </div>
 
-          {/* Instructions */}
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
               📖 Cooking Instructions
@@ -420,7 +399,6 @@ export default function CreateRecipePage() {
             />
           </div>
 
-          {/* Tags */}
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
               🏷️ Tags
@@ -466,7 +444,6 @@ export default function CreateRecipePage() {
             )}
           </div>
 
-          {/* Images */}
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
               📸 Recipe Images
@@ -484,18 +461,17 @@ export default function CreateRecipePage() {
             />
           </div>
 
-          {/* Submit Buttons */}
           <div className="flex flex-col sm:flex-row gap-4">
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="btn btn-lg flex-1 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition cursor-pointer"
+              className="btn btn-xl md:btn-lg flex-1 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="btn btn-lg flex-1 bg-linear-to-r from-primary to-green-600 text-white rounded-xl font-semibold hover:from-green-600 hover:to-green-700 transition cursor-pointer disabled:opacity-50"
+              className="btn btn-xl md:btn-lg flex-1 bg-linear-to-r from-primary to-green-600 text-white rounded-xl font-semibold hover:from-green-600 hover:to-green-700 transition cursor-pointer "
             >
               Create Recipe
             </button>

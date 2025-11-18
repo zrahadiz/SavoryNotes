@@ -1,21 +1,33 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  HiPlus,
-  HiX,
-  HiPhotograph,
-  HiArrowLeft,
-  HiCheck,
-} from "react-icons/hi";
+
 import api from "@/api/axios";
 
 import Loading from "@/components/Loading";
 import { toast } from "@/lib/toast";
-import ImageUploader from "../../components/ImageUploader";
+import ImageUploader from "@/components/ImageUploader";
+
+import { HiPlus, HiX, HiArrowLeft, HiCheck } from "react-icons/hi";
+
+const categories = [
+  { value: "entree", label: "Entree" },
+  { value: "breakfast", label: "Breakfast" },
+  { value: "lunch", label: "Lunch" },
+  { value: "dinner", label: "Dinner" },
+  { value: "dessert", label: "Dessert" },
+  { value: "quickBites", label: "Quick Bites" },
+];
+
+const difficulties = [
+  { value: "easy", label: "Easy", emoji: "😊" },
+  { value: "medium", label: "Medium", emoji: "🤔" },
+  { value: "hard", label: "Hard", emoji: "😰" },
+];
 
 export default function EditRecipePage() {
   const navigate = useNavigate();
   const { slug } = useParams();
+
   const [loadingState, setLoadingState] = useState(false);
   const [loadingText, setLoadingText] = useState("");
 
@@ -37,22 +49,6 @@ export default function EditRecipePage() {
   const [currentTag, setCurrentTag] = useState("");
   const [currentIngredient, setCurrentIngredient] = useState("");
 
-  const categories = [
-    { value: "entree", label: "Entree" },
-    { value: "breakfast", label: "Breakfast" },
-    { value: "lunch", label: "Lunch" },
-    { value: "dinner", label: "Dinner" },
-    { value: "dessert", label: "Dessert" },
-    { value: "quickBites", label: "Quick Bites" },
-  ];
-
-  const difficulties = [
-    { value: "easy", label: "Easy", emoji: "😊" },
-    { value: "medium", label: "Medium", emoji: "🤔" },
-    { value: "hard", label: "Hard", emoji: "😰" },
-  ];
-
-  // Fetch existing recipe data
   const fetchRecipe = async () => {
     setLoadingState(true);
     setLoadingText("Getting the recipe...");
@@ -94,7 +90,6 @@ export default function EditRecipePage() {
     fetchRecipe();
   }, [slug, navigate]);
 
-  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -103,7 +98,6 @@ export default function EditRecipePage() {
     }));
   };
 
-  // Calculate total time when prep or cook time changes
   const handleTimeChange = (e) => {
     const { name, value } = e.target;
     const numValue = parseInt(value) || 0;
@@ -111,7 +105,6 @@ export default function EditRecipePage() {
     setFormData((prev) => {
       const newData = { ...prev, [name]: numValue };
 
-      // Calculate total time
       const prepTime = name === "prepTime" ? numValue : prev.prepTime;
       const cookTime = name === "cookTime" ? numValue : prev.cookTime;
       newData.time = prepTime + cookTime;
@@ -120,7 +113,6 @@ export default function EditRecipePage() {
     });
   };
 
-  // Add tag
   const handleAddTag = (e) => {
     e.preventDefault();
     if (currentTag.trim() && !formData.tags.includes(currentTag.trim())) {
@@ -132,7 +124,6 @@ export default function EditRecipePage() {
     }
   };
 
-  // Remove tag
   const handleRemoveTag = (tagToRemove) => {
     setFormData((prev) => ({
       ...prev,
@@ -140,7 +131,6 @@ export default function EditRecipePage() {
     }));
   };
 
-  // Add ingredient
   const handleAddIngredient = (e) => {
     e.preventDefault();
     if (currentIngredient.trim()) {
@@ -152,7 +142,6 @@ export default function EditRecipePage() {
     }
   };
 
-  // Remove ingredient
   const handleRemoveIngredient = (index) => {
     setFormData((prev) => ({
       ...prev,
@@ -160,7 +149,6 @@ export default function EditRecipePage() {
     }));
   };
 
-  // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -223,7 +211,7 @@ export default function EditRecipePage() {
       toast(data.payload.message || "Recipe updated successfully!", {
         type: "success",
       });
-      navigate(`/recipes/${slug}`);
+      navigate(`/recipes`);
     } catch (error) {
       console.error("Error updating recipe:", error);
       toast(
@@ -240,7 +228,7 @@ export default function EditRecipePage() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-white via-green-50 to-white">
+    <div className="min-h-screen bg-linear-to-b from-white to-green-50">
       <Loading status={loadingState} fullscreen text={loadingText} />
       {/* Header */}
       <div className="bg-linear-to-r from-secondary to-orange-600 text-white py-8 sm:py-12">
@@ -258,15 +246,13 @@ export default function EditRecipePage() {
       </div>
 
       {/* Form */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Basic Information */}
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
               📝 Basic Information
             </h2>
 
-            {/* Title */}
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Recipe Title *
@@ -282,7 +268,6 @@ export default function EditRecipePage() {
               />
             </div>
 
-            {/* Description */}
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Short Description *
@@ -298,7 +283,6 @@ export default function EditRecipePage() {
               />
             </div>
 
-            {/* Category and Difficulty */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -347,7 +331,6 @@ export default function EditRecipePage() {
               </div>
             </div>
 
-            {/* Time and Servings */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -402,7 +385,6 @@ export default function EditRecipePage() {
             )}
           </div>
 
-          {/* Ingredients */}
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
               🥗 Ingredients
@@ -451,7 +433,6 @@ export default function EditRecipePage() {
             )}
           </div>
 
-          {/* Instructions */}
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
               📖 Cooking Instructions
@@ -468,7 +449,6 @@ export default function EditRecipePage() {
             />
           </div>
 
-          {/* Tags */}
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
               🏷️ Tags
@@ -494,7 +474,7 @@ export default function EditRecipePage() {
             </div>
 
             {formData.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 max-h-32 overflow-auto">
                 {formData.tags.map((tag, index) => (
                   <span
                     key={index}
@@ -514,7 +494,6 @@ export default function EditRecipePage() {
             )}
           </div>
 
-          {/* Images */}
           <div className="bg-white rounded-2xl shadow-lg p-6">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
               📸 Recipe Images
@@ -529,18 +508,17 @@ export default function EditRecipePage() {
             />
           </div>
 
-          {/* Submit Buttons */}
           <div className="flex flex-col sm:flex-row gap-4">
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="btn btn-lg flex-1 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition cursor-pointer"
+              className="btn btn-xl md:btn-lg flex-1 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="btn btn-lg flex-1 bg-linear-to-r from-secondary to-orange-600 text-white rounded-xl font-semibold hover:from-orange-600 hover:to-orange-700 transition cursor-pointer disabled:opacity-50"
+              className="btn btn-xl md:btn-lg flex-1 bg-linear-to-r from-secondary to-orange-600 text-white rounded-xl font-semibold hover:from-orange-600 hover:to-orange-700 transition cursor-pointer disabled:opacity-50"
             >
               Update Recipe
             </button>

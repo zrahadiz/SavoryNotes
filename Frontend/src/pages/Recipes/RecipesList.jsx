@@ -1,16 +1,28 @@
 import { useState, useEffect } from "react";
+
+import { useAuthStore } from "@/store/authStore";
+import { Link } from "react-router-dom";
+import api from "@/api/axios";
+
+import { toast } from "@/lib/toast";
+import Loading from "@/components/Loading";
+import RecipeCard from "@/components/RecipeCard";
+
 import {
   HiSearch,
   HiPlus,
   HiChevronLeft,
   HiChevronRight,
 } from "react-icons/hi";
-import { useAuthStore } from "@/store/authStore";
-import api from "@/api/axios";
 
-import Loading from "@/components/Loading";
-import { Link } from "react-router-dom";
-import RecipeCard from "../../components/RecipeCard";
+const categories = ["All", "Breakfast", "Lunch", "Dinner", "Dessert", "Snack"];
+const difficulties = ["All", "Easy", "Medium", "Hard"];
+const sortOptions = [
+  { label: "Newest First", value: "newest" },
+  { label: "Oldest First", value: "oldest" },
+  { label: "A-Z", value: "az" },
+  { label: "Z-A", value: "za" },
+];
 
 export default function RecipesList() {
   const { user } = useAuthStore();
@@ -28,25 +40,6 @@ export default function RecipesList() {
   const [totalPages, setTotalPages] = useState(0);
   const [totalData, setTotalData] = useState(0);
 
-  const recipesPerPage = 8;
-
-  const categories = [
-    "All",
-    "Breakfast",
-    "Lunch",
-    "Dinner",
-    "Dessert",
-    "Snack",
-  ];
-  const difficulties = ["All", "Easy", "Medium", "Hard"];
-  const sortOptions = [
-    { label: "Newest First", value: "newest" },
-    { label: "Oldest First", value: "oldest" },
-    { label: "A-Z", value: "az" },
-    { label: "Z-A", value: "za" },
-  ];
-
-  // Fetch recipes
   const fetchRecipes = async () => {
     setLoadingState(true);
     setLoadingText("Getting Recipes");
@@ -67,7 +60,7 @@ export default function RecipesList() {
 
       params.append("sort", sortBy);
       params.append("page", currentPage);
-      params.append("limit", recipesPerPage);
+      params.append("limit", 8);
 
       const { data } = await api.get(`/posts?${params.toString()}`);
       setRecipes(data.payload.datas || []);
@@ -75,6 +68,9 @@ export default function RecipesList() {
       setTotalData(data.pagination?.total);
     } catch (error) {
       console.error("Error fetching recipes:", error);
+      toast(error.response.data.payload.message || "Failed to get recipes", {
+        type: "error",
+      });
       setRecipes([]);
       setTotalPages(0);
       setTotalData(0);
@@ -99,7 +95,7 @@ export default function RecipesList() {
   }, [searchQuery, selectedCategory, selectedDifficulty, sortBy]);
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-white via-green-50 to-white">
+    <div className="min-h-screen bg-linear-to-b from-white to-green-50">
       <Loading status={loadingState} fullscreen text={loadingText} />
 
       {/* Header */}
@@ -130,7 +126,6 @@ export default function RecipesList() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Search and Filters */}
         <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 mb-8">
-          {/* Search Bar */}
           <div className="relative mb-4">
             <HiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
@@ -142,9 +137,7 @@ export default function RecipesList() {
             />
           </div>
 
-          {/* Filters Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Category Filter */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Category
@@ -162,7 +155,6 @@ export default function RecipesList() {
               </select>
             </div>
 
-            {/* Difficulty Filter */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Difficulty
@@ -180,7 +172,6 @@ export default function RecipesList() {
               </select>
             </div>
 
-            {/* Sort By */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Sort By
@@ -198,7 +189,6 @@ export default function RecipesList() {
               </select>
             </div>
 
-            {/* Results Count */}
             <div className="flex items-end">
               <div className="w-full px-4 py-2 bg-green-50 rounded-lg text-center">
                 <p className="text-sm text-gray-600">
@@ -245,7 +235,7 @@ export default function RecipesList() {
                     setCurrentPage((prev) => Math.max(1, prev - 1))
                   }
                   disabled={currentPage === 1}
-                  className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer "
                   style={{
                     backgroundColor: currentPage === 1 ? "#e5e7eb" : "#4CAF50",
                     color: currentPage === 1 ? "#9ca3af" : "white",
