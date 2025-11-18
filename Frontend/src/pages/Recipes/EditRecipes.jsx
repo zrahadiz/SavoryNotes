@@ -247,7 +247,7 @@ export default function EditRecipePage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-white hover:text-orange-100 transition mb-4"
+            className="flex items-center gap-2 text-white hover:text-orange-100 transition mb-4 cursor-pointer"
           >
             <HiArrowLeft className="w-5 h-5" />
             <span>Back</span>
@@ -498,7 +498,7 @@ export default function EditRecipePage() {
                 {formData.tags.map((tag, index) => (
                   <span
                     key={index}
-                    className="px-4 py-2 bg-secondary text-white rounded-full font-medium flex items-center gap-2"
+                    className="px-4 py-2 bg-orange-100 text-orange-600 rounded-full font-medium flex items-center gap-2"
                   >
                     {tag}
                     <button

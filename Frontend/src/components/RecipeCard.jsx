@@ -20,7 +20,7 @@ export default function RecipeCard({
 
   const [selectedSlug, setSelectedSlug] = useState(null);
 
-  const handleDelete = async (slug) => {
+  const handleDelete = async () => {
     setLoadingState(true);
     setLoadingText("Deleting post...");
     try {

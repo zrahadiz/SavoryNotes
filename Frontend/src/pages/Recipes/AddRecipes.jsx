@@ -201,7 +201,7 @@ export default function CreateRecipePage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-white hover:text-green-100 transition mb-4"
+            className="flex items-center gap-2 text-white hover:text-green-100 transition mb-4 cursor-pointer"
           >
             <HiArrowLeft className="w-5 h-5" />
             <span>Back</span>
@@ -438,7 +438,7 @@ export default function CreateRecipePage() {
               <button
                 type="button"
                 onClick={handleAddTag}
-                className="btn bg-secondary text-white rounded-xl font-semibold hover:bg-hsecondary transition flex items-center gap-2"
+                className="btn bg-primary text-white rounded-xl font-semibold hover:bg-hprimary transition flex items-center gap-2"
               >
                 <HiPlus className="w-5 h-5" />
                 Add
@@ -450,13 +450,13 @@ export default function CreateRecipePage() {
                 {formData.tags.map((tag, index) => (
                   <span
                     key={index}
-                    className="px-4 py-2 bg-orange-100 text-orange-600 rounded-full font-medium flex items-center gap-2"
+                    className="px-4 py-2 bg-green-100 text-green-600 rounded-full font-medium flex items-center gap-2"
                   >
                     {tag}
                     <button
                       type="button"
                       onClick={() => handleRemoveTag(tag)}
-                      className="hover:bg-orange-200 rounded-full transition cursor-pointer"
+                      className="hover:bg-green-200 rounded-full transition cursor-pointer"
                     >
                       <HiX className="w-4 h-4" />
                     </button>

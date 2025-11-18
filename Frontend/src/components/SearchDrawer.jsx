@@ -10,8 +10,11 @@ import {
   HiChevronRight,
 } from "react-icons/hi";
 import api from "@/api/axios";
+import imgNotFound from "@/assets/imgNotFound.png";
 
 export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
+  const [loading, setLoading] = useState(false);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedFilters, setSelectedFilters] = useState({
@@ -19,11 +22,8 @@ export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
     difficulty: "all",
   });
   const [recipes, setRecipes] = useState([]);
-  const [totalRecipes, setTotalRecipes] = useState(0);
-  const [loading, setLoading] = useState(false);
-
-  const recipesPerPage = 6;
-  const totalPages = Math.ceil(totalRecipes / recipesPerPage);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalData, setTotalData] = useState(0);
 
   const fetchRecipes = async () => {
     setLoading(true);
@@ -43,17 +43,19 @@ export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
       }
 
       params.append("page", currentPage);
-      params.append("limit", recipesPerPage);
+      params.append("limit", 6);
 
       const { data } = await api.get(`/posts?${params.toString()}`);
       console.log("Fetched recipes:", data);
 
       setRecipes(data.payload.datas || []);
-      setTotalRecipes(data.payload.total || data.payload.datas?.length || 0);
+      setTotalPages(data.pagination?.max || 1);
+      setTotalData(data.pagination?.total);
     } catch (error) {
       console.error("Error fetching recipes:", error);
       setRecipes([]);
-      setTotalRecipes(0);
+      setTotalPages(0);
+      setTotalData(0);
     } finally {
       setLoading(false);
     }
@@ -114,7 +116,7 @@ export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
               </h2>
               <button
                 onClick={onClose}
-                className="p-2 rounded-full hover:bg-gray-200 transition touch-manipulation"
+                className="p-2 rounded-full hover:bg-gray-200 transition touch-manipulation cursor-pointer"
                 aria-label="Close search"
               >
                 <HiX className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -180,7 +182,7 @@ export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
 
               <p className="text-xs sm:text-sm text-gray-600">
                 Found{" "}
-                <span className="font-bold text-green-500">{totalRecipes}</span>{" "}
+                <span className="font-bold text-green-500">{totalData}</span>{" "}
                 recipes
               </p>
             </div>
@@ -220,9 +222,14 @@ export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
                       {/* Image */}
                       <div className="shrink-0">
                         <img
-                          src={recipe.images}
+                          src={recipe.images[0] || imgNotFound}
                           alt={recipe.title}
                           className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg sm:rounded-xl object-cover"
+                          onError={(e) => {
+                            e.target.src = imgNotFound;
+                            e.target.className =
+                              "w-20 h-20 sm:w-24 sm:h-24 rounded-lg sm:rounded-xl object-contain";
+                          }}
                         />
                       </div>
 
@@ -300,7 +307,7 @@ export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
                     setCurrentPage((prev) => Math.max(1, prev - 1))
                   }
                   disabled={currentPage === 1}
-                  className="flex items-center gap-1 px-3 py-2 rounded-full font-semibold text-sm transition disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+                  className="flex items-center gap-1 px-3 py-2 rounded-full font-semibold text-sm transition disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation cursor-pointer"
                   style={{
                     backgroundColor: currentPage === 1 ? "#e5e7eb" : "#4CAF50",
                     color: currentPage === 1 ? "#9ca3af" : "white",
@@ -319,7 +326,7 @@ export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
                     setCurrentPage((prev) => Math.min(totalPages, prev + 1))
                   }
                   disabled={currentPage === totalPages}
-                  className="flex items-center gap-1 px-3 py-2 rounded-full font-semibold text-sm transition disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+                  className="flex items-center gap-1 px-3 py-2 rounded-full font-semibold text-sm transition disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation cursor-pointer"
                   style={{
                     backgroundColor:
                       currentPage === totalPages ? "#e5e7eb" : "#4CAF50",
@@ -338,7 +345,7 @@ export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
                     setCurrentPage((prev) => Math.max(1, prev - 1))
                   }
                   disabled={currentPage === 1}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 px-4 py-2 rounded-full font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   style={{
                     backgroundColor: currentPage === 1 ? "#e5e7eb" : "#4CAF50",
                     color: currentPage === 1 ? "#9ca3af" : "white",
@@ -365,7 +372,7 @@ export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
                       <button
                         key={page}
                         onClick={() => setCurrentPage(page)}
-                        className="w-10 h-10 rounded-full font-semibold transition"
+                        className="w-10 h-10 rounded-full font-semibold transition cursor-pointer"
                         style={{
                           backgroundColor:
                             currentPage === page ? "#4CAF50" : "white",
@@ -385,7 +392,7 @@ export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
                     setCurrentPage((prev) => Math.min(totalPages, prev + 1))
                   }
                   disabled={currentPage === totalPages}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 px-4 py-2 rounded-full font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   style={{
                     backgroundColor:
                       currentPage === totalPages ? "#e5e7eb" : "#4CAF50",

@@ -9,11 +9,13 @@ import {
   HiLogout,
 } from "react-icons/hi";
 import { useAuthStore } from "@/store/authStore";
+import SearchDrawer from "../SearchDrawer";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -137,7 +139,9 @@ export default function Header() {
             <div className="hidden md:flex items-center space-x-3">
               {/* Search Button */}
               <button
-                onClick={() => navigate("/search")}
+                onClick={() => {
+                  setIsSearchOpen(true);
+                }}
                 className="p-2.5 rounded-full hover:bg-gray-100 transition-all duration-200 group"
                 aria-label="Search"
               >
@@ -332,6 +336,11 @@ export default function Header() {
           onClick={closeMenu}
         />
       )}
+
+      <SearchDrawer
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+      />
     </>
   );
 }

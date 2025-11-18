@@ -25,10 +25,10 @@ export default function RecipesList() {
   const [selectedDifficulty, setSelectedDifficulty] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalRecipes, setTotalRecipes] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalData, setTotalData] = useState(0);
 
-  const recipesPerPage = 12;
-  const totalPages = Math.ceil(totalRecipes / recipesPerPage);
+  const recipesPerPage = 8;
 
   const categories = [
     "All",
@@ -71,11 +71,13 @@ export default function RecipesList() {
 
       const { data } = await api.get(`/posts?${params.toString()}`);
       setRecipes(data.payload.datas || []);
-      setTotalRecipes(data.payload.total || data.payload.datas?.length || 0);
+      setTotalPages(data.pagination?.max || 1);
+      setTotalData(data.pagination?.total);
     } catch (error) {
       console.error("Error fetching recipes:", error);
       setRecipes([]);
-      setTotalRecipes(0);
+      setTotalPages(0);
+      setTotalData(0);
     } finally {
       setLoadingState(false);
       setLoadingText("");
@@ -201,7 +203,7 @@ export default function RecipesList() {
               <div className="w-full px-4 py-2 bg-green-50 rounded-lg text-center">
                 <p className="text-sm text-gray-600">
                   <span className="font-bold text-green-600 text-lg">
-                    {totalRecipes}
+                    {totalData}
                   </span>{" "}
                   recipes found
                 </p>
@@ -243,7 +245,7 @@ export default function RecipesList() {
                     setCurrentPage((prev) => Math.max(1, prev - 1))
                   }
                   disabled={currentPage === 1}
-                  className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   style={{
                     backgroundColor: currentPage === 1 ? "#e5e7eb" : "#4CAF50",
                     color: currentPage === 1 ? "#9ca3af" : "white",
@@ -270,7 +272,7 @@ export default function RecipesList() {
                       <button
                         key={page}
                         onClick={() => setCurrentPage(page)}
-                        className="w-10 h-10 rounded-full font-semibold transition"
+                        className="w-10 h-10 rounded-full font-semibold transition cursor-pointer"
                         style={{
                           backgroundColor:
                             currentPage === page ? "#4CAF50" : "white",
@@ -290,7 +292,7 @@ export default function RecipesList() {
                     setCurrentPage((prev) => Math.min(totalPages, prev + 1))
                   }
                   disabled={currentPage === totalPages}
-                  className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   style={{
                     backgroundColor:
                       currentPage === totalPages ? "#e5e7eb" : "#4CAF50",
