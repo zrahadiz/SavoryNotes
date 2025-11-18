@@ -17,7 +17,7 @@ export default function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Login attempt:", { email, password, rememberMe });
+    console.log("Register attempt:", { email, password });
     // Add your login logic here
   };
 

@@ -142,7 +142,7 @@ export default function Header() {
                 onClick={() => {
                   setIsSearchOpen(true);
                 }}
-                className="p-2.5 rounded-full hover:bg-gray-100 transition-all duration-200 group"
+                className="p-2.5 rounded-full hover:bg-gray-100 transition-all duration-200 group cursor-pointer"
                 aria-label="Search"
               >
                 <HiSearch className="w-6 h-6 text-gray-600 group-hover:text-green-600 transition-colors" />
@@ -151,10 +151,10 @@ export default function Header() {
               {/* Auth Actions */}
               {!isAuthenticated ? (
                 <Link
-                  to="/register"
+                  to="/login"
                   className="px-6 py-2.5 rounded-full text-white font-semibold bg-linear-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg"
                 >
-                  Register
+                  Login
                 </Link>
               ) : (
                 <div className="relative" ref={profileRef}>
@@ -194,16 +194,6 @@ export default function Header() {
                         </div>
                       </div>
                       <div className="p-2">
-                        <Link
-                          to="/profile"
-                          onClick={() => setProfileOpen(false)}
-                          className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
-                        >
-                          <HiUser className="w-5 h-5 text-gray-500 group-hover:text-green-600" />
-                          <span className="text-gray-700 group-hover:text-green-600 font-medium">
-                            My Profile
-                          </span>
-                        </Link>
                         <button
                           onClick={handleLogout}
                           className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg hover:bg-red-50 transition-colors group"
@@ -238,7 +228,7 @@ export default function Header() {
         {/* Mobile Menu */}
         <div
           className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-            mobileMenuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+            mobileMenuOpen ? "max-h-[700px] opacity-100" : "max-h-0 opacity-0"
           }`}
         >
           <div className="bg-linear-to-b from-white to-gray-50 border-t border-gray-100 px-4 py-6 space-y-3">
@@ -306,15 +296,6 @@ export default function Header() {
                     </div>
                   </div>
                 </div>
-
-                <Link
-                  to="/profile"
-                  onClick={closeMenu}
-                  className="flex items-center gap-3 w-full px-4 py-3 rounded-xl hover:bg-gray-100 transition-colors"
-                >
-                  <HiUser className="w-5 h-5 text-gray-600" />
-                  <span className="text-gray-700 font-medium">My Profile</span>
-                </Link>
 
                 <button
                   onClick={handleLogout}

@@ -17,11 +17,11 @@ export default function Login() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login attempt:", { email, password, rememberMe });
+    console.log("Login attempt:", { email, password });
     setLoadingState(true);
     setLoadingText("Logging in...");
     try {
@@ -119,36 +119,33 @@ export default function Login() {
                 </div>
 
                 <div className="form-control space-y-1">
-                  <label className="label">
+                  <label className="label flex justify-between">
                     <span className="label-text font-medium text-gray-700">
                       Password
                     </span>
+                    <Link
+                      to="/forgot-password"
+                      className="text-sm font-medium text-secondary hover:underline"
+                    >
+                      Forgot password?
+                    </Link>
                   </label>
-                  <input
-                    type="password"
-                    placeholder="Enter your password"
-                    className="input input-bordered border-gray-300 w-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <label className="label cursor-pointer gap-2">
+                  <div className="relative">
                     <input
-                      type="checkbox"
-                      className="checkbox checkbox-sm checkbox-success"
-                      checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Enter your password"
+                      className="input input-bordered border-gray-300 w-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                     />
-                    <span className="label-text text-sm">Remember me</span>
-                  </label>
-                  <Link
-                    to="/forgot-password"
-                    className="text-sm font-medium text-secondary hover:underline"
-                  >
-                    Forgot password?
-                  </Link>
+                    <button
+                      type="button"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-sm opacity-70 hover:opacity-100 z-10 bg-base-100 cursor-pointer"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    >
+                      {showPassword ? "Hide" : "Show"}
+                    </button>
+                  </div>
                 </div>
 
                 <button

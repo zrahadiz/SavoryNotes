@@ -1,12 +1,14 @@
-import { HiSearch, HiOutlineSparkles, HiUsers, HiHeart } from "react-icons/hi";
+import { useEffect, useState } from "react";
 
+import { useAuthStore } from "@/store/authStore";
 import api from "@/api/axios";
 
+import RecipeCarousel from "@/components/RecipeCarousel";
+import RecipeCard from "@/components/RecipeCard";
+import SearchDrawer from "@/components/SearchDrawer";
+
 import CookIllust from "@/assets/cook.png";
-import RecipeCarousel from "../components/RecipeCarousel";
-import RecipeCard from "../components/RecipeCard";
-import { useEffect, useState } from "react";
-import SearchDrawer from "../components/SearchDrawer";
+import { HiSearch, HiOutlineSparkles, HiUsers, HiHeart } from "react-icons/hi";
 
 const features = [
   {
@@ -29,22 +31,23 @@ const features = [
   },
 ];
 
+const categoryList = {
+  ALL: "all",
+  ENTREE: "entree",
+  BREAKFAST: "breakfast",
+  LUNCH: "lunch",
+  DINNER: "dinner",
+  DESSERT: "dessert",
+  "QUICK BITES": "quickBites",
+};
+
 export default function SavoryNotesHome() {
+  const { isAuthenticated } = useAuthStore();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [initialSearch, setInitialSearch] = useState("");
 
   const [featuredRecipes, setFeaturedRecipes] = useState([]);
   const [recipes, setRecipes] = useState([]);
-
-  const categoryList = {
-    ALL: "all",
-    ENTREE: "entree",
-    BREAKFAST: "breakfast",
-    LUNCH: "lunch",
-    DINNER: "dinner",
-    DESSERT: "dessert",
-    "QUICK BITES": "quickBites",
-  };
   const [activeFilter, setActiveFilter] = useState("all");
 
   const featuredPosts = async () => {
@@ -64,6 +67,7 @@ export default function SavoryNotesHome() {
     if (activeFilter !== "all") {
       params.append("category", activeFilter.toLowerCase());
     }
+    params.append("limit", 6);
     try {
       const { data } = await api.get(`/posts?${params.toString()}`);
       console.log(data);
@@ -82,11 +86,10 @@ export default function SavoryNotesHome() {
   }, [activeFilter]);
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-white to-green-50">
+    <div className="min-h-screen bg-linear-to-b from-white to-green-50 py-24">
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col-reverse md:flex-row items-center gap-12 md:gap-20">
-          {/* Text Content */}
           <div className="space-y-6 text-center md:text-left">
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight text-green-600">
               Cook What You Love,
@@ -108,7 +111,6 @@ export default function SavoryNotesHome() {
             </div>
           </div>
 
-          {/* Illustrations */}
           <div className="relative w-full max-w-md flex justify-center md:justify-end">
             <img
               src={CookIllust}
@@ -120,9 +122,8 @@ export default function SavoryNotesHome() {
       </section>
 
       {/* Search Section */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 mb-16">
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 md:pt-24">
         <div className="bg-white rounded-3xl shadow-xl p-6">
-          {/* Search Trigger */}
           <div
             onClick={() => {
               setInitialSearch("");
@@ -136,15 +137,14 @@ export default function SavoryNotesHome() {
             </span>
           </div>
 
-          {/* Quick Filters */}
           <div className="flex flex-wrap gap-2 mt-5">
             {["Vegan", "Keto", "Gluten-Free", "Dairy-Free", "Noodle"].map(
               (tag) => (
                 <button
                   key={tag}
                   onClick={() => {
-                    setInitialSearch(tag); // pass tag to drawer
-                    setIsSearchOpen(true); // open drawer
+                    setInitialSearch(tag);
+                    setIsSearchOpen(true);
                   }}
                   className="px-4 py-1.5 rounded-full text-sm border border-green-500 text-green-600 cursor-pointer hover:bg-green-500 hover:text-white transition font-medium"
                 >
@@ -157,7 +157,7 @@ export default function SavoryNotesHome() {
       </section>
 
       {/* Featured Recipes */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 md:pt-24">
         <div className="text-left mb-10">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-green-500">
             Featured Recipes
@@ -170,14 +170,10 @@ export default function SavoryNotesHome() {
         <RecipeCarousel popularRecipes={featuredRecipes} />
       </section>
 
-      {/* List Recipes Section */}
-      <div className="">
-        {/* Main Heading */}
+      {/* Top 6 Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 md:pt-24">
         <div className="text-center px-4 mb-8">
-          <h1
-            className="text-4xl md:text-5xl font-bold mb-4"
-            style={{ color: "#4CAF50" }}
-          >
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-primary">
             EMBARK ON A<br />
             JOURNEY
           </h1>
@@ -204,7 +200,7 @@ export default function SavoryNotesHome() {
           ))}
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {recipes.length === 0 ? (
             <div className="text-center py-20">
               <h2 className="text-2xl font-semibold text-gray-600">
@@ -222,9 +218,10 @@ export default function SavoryNotesHome() {
             </div>
           )}
         </div>
-      </div>
-      {/* Features Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      </section>
+
+      {/* Why Choose Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 md:pt-24">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-green-500">
             Why Choose SavoryNotes?
@@ -260,16 +257,10 @@ export default function SavoryNotesHome() {
           </div>
 
           <div className="bg-white rounded-3xl p-8 md:p-12 shadow-lg flex flex-col justify-center order-2 md:order-1">
-            <div
-              className="inline-block px-4 py-2 rounded-full text-sm font-bold text-white mb-6 w-fit"
-              style={{ backgroundColor: "#FF8F3A" }}
-            >
+            <div className="inline-block px-4 py-2 rounded-full text-sm font-bold text-white mb-6 w-fit bg-secondary">
               OUR BLOG
             </div>
-            <h2
-              className="text-3xl md:text-4xl font-bold mb-4"
-              style={{ color: "#4CAF50" }}
-            >
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-primary">
               OUR CULINARY
               <br />
               CHRONICLE
@@ -279,10 +270,7 @@ export default function SavoryNotesHome() {
               stories behind our signature dishes and culinary experiences. Join
               us in savoring the essence of every dish on your table.
             </p>
-            <button
-              className="px-8 py-3 rounded-full font-semibold text-white w-fit transition-all duration-300 transform hover:scale-105 shadow-lg"
-              style={{ backgroundColor: "#4CAF50" }}
-            >
+            <button className="px-8 py-3 rounded-full font-semibold text-white w-fit transition-all duration-300 transform hover:scale-105 shadow-lg bg-primary">
               READ MORE
             </button>
           </div>
@@ -305,20 +293,22 @@ export default function SavoryNotesHome() {
       </section>
 
       {/* CTA Section */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="rounded-3xl p-12 text-center shadow-2xl bg-green-500">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Ready to inspire other home cooks?
-          </h2>
-          <p className="text-white text-lg mb-8 opacity-90">
-            Share your favorite recipes and become part of our growing
-            community!
-          </p>
-          <button className="px-10 py-4 rounded-full font-bold text-lg text-green-800 bg-yellow-300 hover:bg-yellow-400 transition transform hover:scale-105 shadow-lg">
-            Register Now
-          </button>
-        </div>
-      </section>
+      {!isAuthenticated && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 md:pt-24">
+          <div className="rounded-3xl p-12 text-center shadow-2xl bg-green-500">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Ready to inspire other home cooks?
+            </h2>
+            <p className="text-white text-lg mb-8 opacity-90">
+              Share your favorite recipes and become part of our growing
+              community!
+            </p>
+            <button className="px-10 py-4 rounded-full font-bold text-lg text-green-800 bg-yellow-300 hover:bg-yellow-400 transition transform hover:scale-105 shadow-lg">
+              Register Now
+            </button>
+          </div>
+        </section>
+      )}
 
       <SearchDrawer
         isOpen={isSearchOpen}
