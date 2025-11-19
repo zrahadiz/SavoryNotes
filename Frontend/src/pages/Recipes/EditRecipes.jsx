@@ -2,13 +2,13 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import api from "@/api/axios";
+import { toast } from "@/lib/toast";
 
 import Loading from "@/components/Loading";
-import { toast } from "@/lib/toast";
 import ImageUploader from "@/components/ImageUploader";
+import InstructionsInput from "@/components/InstructionInput";
 
 import { HiPlus, HiX, HiArrowLeft, HiCheck, HiSparkles } from "react-icons/hi";
-import InstructionsInput from "../../components/InstructionInput";
 
 const categories = [
   { value: "entree", label: "Entree" },
@@ -221,7 +221,6 @@ export default function EditRecipePage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
     if (!formData.title.trim()) {
       toast("Please enter a recipe title", {
         type: "warning",
@@ -303,7 +302,7 @@ export default function EditRecipePage() {
       <div className="bg-linear-to-r from-secondary to-orange-600 text-white py-8 sm:py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <button
-            onClick={() => navigate("-1")}
+            onClick={() => navigate("/recipes")}
             className="flex items-center gap-2 text-white hover:text-orange-100 transition mb-4 cursor-pointer"
           >
             <HiArrowLeft className="w-5 h-5" />
