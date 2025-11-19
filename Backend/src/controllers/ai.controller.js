@@ -9,6 +9,37 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GOOGLE_GENAI_API_KEY,
 });
 
+const descriptionRecommendation = async (req, res) => {
+  try {
+    const { title } = req.body;
+
+    if (!title) {
+      response(400, false, null, "title are required", res);
+    }
+
+    const prompt = `
+      Create a short, appetizing description (max 250 characters) for this recipe: ${title}
+      `;
+
+    const aiResponse = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+    });
+
+    const description = aiResponse.text;
+
+    return response(
+      200,
+      true,
+      description,
+      "Successfuly generate description",
+      res
+    );
+  } catch (error) {
+    response(500, false, null, error.message, res);
+  }
+};
+
 const tagRecommendation = async (req, res) => {
   try {
     const { title, ingredients, content } = req.body;
@@ -50,5 +81,6 @@ const tagRecommendation = async (req, res) => {
 };
 
 module.exports = {
+  descriptionRecommendation,
   tagRecommendation,
 };

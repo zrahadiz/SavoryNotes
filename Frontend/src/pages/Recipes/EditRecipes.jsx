@@ -7,7 +7,7 @@ import Loading from "@/components/Loading";
 import { toast } from "@/lib/toast";
 import ImageUploader from "@/components/ImageUploader";
 
-import { HiPlus, HiX, HiArrowLeft, HiCheck } from "react-icons/hi";
+import { HiPlus, HiX, HiArrowLeft, HiCheck, HiSparkles } from "react-icons/hi";
 import InstructionsInput from "../../components/InstructionInput";
 
 const categories = [
@@ -87,6 +87,39 @@ export default function EditRecipePage() {
     }
   };
 
+  const generateDesc = async () => {
+    setLoadingState(true);
+    setLoadingText("Generating the descriptions...");
+    try {
+      console.log(formData);
+      const { data } = await api.post("/ai/generate-desc", {
+        title: formData.title,
+      });
+      console.log(data);
+      const generatedDescription = data.payload.datas;
+
+      setFormData((prev) => ({
+        ...prev,
+        description: generatedDescription,
+      }));
+      toast("Successfully add generate description.", {
+        type: "success",
+      });
+    } catch (error) {
+      console.error("Error generating description:", error);
+      toast(
+        error.response.data.payload.message ||
+          "Failed to generate description. Please try again.",
+        {
+          type: "error",
+        }
+      );
+    } finally {
+      setLoadingState(false);
+      setLoadingText("");
+    }
+  };
+
   useEffect(() => {
     fetchRecipe();
   }, [slug, navigate]);
@@ -112,6 +145,41 @@ export default function EditRecipePage() {
 
       return newData;
     });
+  };
+
+  const generateTags = async () => {
+    setLoadingState(true);
+    setLoadingText("Generating the tags...");
+    try {
+      console.log(formData);
+      const { data } = await api.post("/ai/generate-tags", {
+        title: formData.title,
+        ingredients: formData.ingredients,
+        content: formData.content,
+      });
+      console.log(data);
+      const aiTags = data.payload.datas;
+
+      setFormData((prev) => ({
+        ...prev,
+        tags: Array.from(new Set([...prev.tags, ...aiTags])),
+      }));
+      toast("Successfully add generate tags.", {
+        type: "success",
+      });
+    } catch (error) {
+      console.error("Error generating tags:", error);
+      toast(
+        error.response.data.payload.message ||
+          "Failed to generate tags. Please try again.",
+        {
+          type: "error",
+        }
+      );
+    } finally {
+      setLoadingState(false);
+      setLoadingText("");
+    }
   };
 
   const handleAddTag = (e) => {
@@ -270,9 +338,23 @@ export default function EditRecipePage() {
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Short Description *
-              </label>
+              <div className="flex justify-between py-2 text-center items-center">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Short Description *
+                </label>
+                <button
+                  type="button"
+                  onClick={generateDesc}
+                  className="btn btn-sm rounded-xl font-semibold flex items-center gap-2 
+                                  bg-linear-to-r from-[#6F73FF] to-[#9A6BFF]
+                                  text-white shadow-md hover:shadow-lg
+                                  hover:from-[#7A7EFF] hover:to-[#A978FF]
+                                  transition-all active:scale-95"
+                >
+                  <HiSparkles className="w-5 h-5" />
+                  Generate Description
+                </button>
+              </div>
               <textarea
                 name="description"
                 value={formData.description}
@@ -448,9 +530,23 @@ export default function EditRecipePage() {
           </div>
 
           <div className="bg-white rounded-2xl shadow-lg p-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-              🏷️ Tags
-            </h2>
+            <div className="flex justify-between">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                🏷️ Tags
+              </h2>
+              <button
+                type="button"
+                onClick={generateTags}
+                className="btn rounded-xl font-semibold flex items-center gap-2 
+             bg-linear-to-r from-[#6F73FF] to-[#9A6BFF]
+             text-white shadow-md hover:shadow-lg
+             hover:from-[#7A7EFF] hover:to-[#A978FF]
+             transition-all active:scale-95"
+              >
+                <HiSparkles className="w-5 h-5" />
+                Generate Tags
+              </button>
+            </div>
 
             <div className="flex gap-2 mb-4">
               <input
