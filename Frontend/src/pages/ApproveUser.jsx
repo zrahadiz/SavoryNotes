@@ -1,3 +1,9 @@
+import { useEffect, useState } from "react";
+
+import api from "@/api/axios";
+import { toast } from "@/lib/toast";
+import Loading from "@/components/Loading";
+
 import {
   HiMail,
   HiUser,
@@ -11,19 +17,15 @@ import {
   HiChevronRight,
 } from "react-icons/hi";
 
-import { useEffect, useState } from "react";
-
-import api from "@/api/axios";
-import { toast } from "@/lib/toast";
-import Loading from "@/components/Loading";
-
 export default function PendingUserInbox() {
   const [pendingUsers, setPendingUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+
   const [loading, setLoading] = useState(false);
   const [loadingState, setLoadingState] = useState(false);
   const [loadingText, setLoadingText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+
   const [pagination, setPagination] = useState({
     total: 0,
     prev: null,

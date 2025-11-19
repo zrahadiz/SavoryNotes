@@ -32,7 +32,7 @@ export default function Login() {
       return;
     }
     setLoadingState(true);
-    setLoadingText("Logging in...");
+    setLoadingText("Signing up...");
     try {
       const { data } = await api.post("/auth/register", {
         name,
