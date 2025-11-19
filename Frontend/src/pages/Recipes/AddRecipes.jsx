@@ -7,7 +7,7 @@ import { toast } from "@/lib/toast";
 import ImageUploader from "@/components/ImageUploader";
 import Loading from "@/components/Loading";
 
-import { HiPlus, HiX, HiArrowLeft, HiCheck } from "react-icons/hi";
+import { HiPlus, HiX, HiArrowLeft, HiCheck, HiSparkles } from "react-icons/hi";
 import InstructionsInput from "../../components/InstructionInput";
 
 const categories = [
@@ -70,6 +70,41 @@ export default function CreateRecipePage() {
 
       return newData;
     });
+  };
+
+  const generateTags = async () => {
+    setLoadingState(true);
+    setLoadingText("Generating the tags...");
+    try {
+      console.log(formData);
+      const { data } = await api.post("/ai/generate-tags", {
+        title: formData.title,
+        ingredients: formData.ingredients,
+        content: formData.ingredients,
+      });
+      console.log(data);
+      const aiTags = data.payload.datas;
+
+      setFormData((prev) => ({
+        ...prev,
+        tags: Array.from(new Set([...prev.tags, ...aiTags])),
+      }));
+      toast("Successfully add generate tags.", {
+        type: "success",
+      });
+    } catch (error) {
+      console.error("Error generating tags:", error);
+      toast(
+        error.response.data.payload.message ||
+          "Failed to generate tags. Please try again.",
+        {
+          type: "error",
+        }
+      );
+    } finally {
+      setLoadingState(false);
+      setLoadingText("");
+    }
   };
 
   const handleAddTag = (e) => {
@@ -399,9 +434,23 @@ export default function CreateRecipePage() {
           </div>
 
           <div className="bg-white rounded-2xl shadow-lg p-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-              🏷️ Tags
-            </h2>
+            <div className="flex justify-between">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                🏷️ Tags
+              </h2>
+              <button
+                type="button"
+                onClick={generateTags}
+                className="btn rounded-xl font-semibold flex items-center gap-2 
+             bg-linear-to-r from-[#6F73FF] to-[#9A6BFF]
+             text-white shadow-md hover:shadow-lg
+             hover:from-[#7A7EFF] hover:to-[#A978FF]
+             transition-all active:scale-95"
+              >
+                <HiSparkles className="w-5 h-5" />
+                Generate Tags
+              </button>
+            </div>
 
             <div className="flex gap-2 mb-4">
               <input

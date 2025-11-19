@@ -14,9 +14,13 @@ const tagRecommendation = async (req, res) => {
     const { title, ingredients, content } = req.body;
 
     if (!title || !ingredients || !content) {
-      return res.status(400).json({
-        error: "title, ingredients, and content are required",
-      });
+      response(
+        400,
+        false,
+        null,
+        "title, ingredients, and content are required",
+        res
+      );
     }
 
     const prompt = `
@@ -30,20 +34,18 @@ const tagRecommendation = async (req, res) => {
       Example output: vegan, spicy, dinner, asian, healthy
       `;
 
-    const response = await ai.models.generateContent({
+    const aiResponse = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: prompt,
     });
 
-    const text = response.text.trim();
+    const text = aiResponse.text.trim();
 
     const tags = text.split(",").map((tag) => tag.trim().toLowerCase());
 
-    return res.json({ tags });
+    return response(200, true, tags, "Successfuly generate tags", res);
   } catch (error) {
-    return res.status(500).json({
-      error: error.message,
-    });
+    response(500, false, null, error.message, res);
   }
 };
 
