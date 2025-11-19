@@ -2,13 +2,13 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import api from "@/api/axios";
-
 import { toast } from "@/lib/toast";
+
 import ImageUploader from "@/components/ImageUploader";
 import Loading from "@/components/Loading";
+import InstructionsInput from "@/components/InstructionInput";
 
 import { HiPlus, HiX, HiArrowLeft, HiCheck, HiSparkles } from "react-icons/hi";
-import InstructionsInput from "../../components/InstructionInput";
 
 const categories = [
   { value: "entree", label: "Entree" },
@@ -476,7 +476,6 @@ export default function CreateRecipePage() {
               value={formData.content}
               onChange={(e) => handleChange(e)}
               name="content"
-              required
             />
           </div>
 
