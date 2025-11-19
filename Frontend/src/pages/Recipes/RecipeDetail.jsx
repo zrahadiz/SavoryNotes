@@ -17,6 +17,7 @@ import {
 import api from "@/api/axios";
 import { useAuthStore } from "@/store/authStore";
 import RecipeInstructions from "../../components/RecipeInstructions";
+import AiChefBot from "../../components/AIChefBot";
 
 const categoryLabels = {
   entree: "Entree",
@@ -44,8 +45,8 @@ const difficultyColors = {
 
 export default function RecipeDetail() {
   const { slug } = useParams();
-  const navigate = useNavigate();
   const { user } = useAuthStore();
+  const navigate = useNavigate();
 
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -128,7 +129,7 @@ export default function RecipeDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-white via-green-50 to-white flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-b from-white via-green-50 to-white flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-500 text-lg">Loading recipe...</p>
@@ -140,7 +141,7 @@ export default function RecipeDetail() {
   if (!recipe) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-green-50 to-white">
+    <div className="min-h-screen bg-linear-to-b from-white via-green-50 to-white">
       {/* Hero Section */}
       <div className="relative h-[60vh] md:h-[70vh] bg-gray-900">
         {/* Image Carousel */}
@@ -155,7 +156,7 @@ export default function RecipeDetail() {
                   "https://via.placeholder.com/1200x800?text=Recipe+Image";
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+            <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent"></div>
 
             {/* Image Navigation */}
             {recipe.images.length > 1 && (
@@ -194,7 +195,7 @@ export default function RecipeDetail() {
             )}
           </div>
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-green-400 to-green-600">
+          <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-green-400 to-green-600">
             <span className="text-9xl">🍳</span>
           </div>
         )}
@@ -218,6 +219,7 @@ export default function RecipeDetail() {
             <HiShare className="w-6 h-6 text-gray-700" />
           </button>
           <button
+            disabled={!recipe}
             onClick={handlePrint}
             className="hidden sm:block p-3 bg-white/90 hover:bg-white rounded-full shadow-lg transition backdrop-blur-sm cursor-pointer"
             aria-label="Print recipe"
@@ -381,19 +383,13 @@ export default function RecipeDetail() {
             📖 Instructions
           </h2>
           <RecipeInstructions content={recipe.content} />
-          {/* <div className="prose prose-lg max-w-none">
-            <div className="whitespace-pre-line text-gray-700 leading-relaxed text-base">
-              {recipe.content}
-            </div>
-          </div> */}
         </div>
-        {recipe.createdBy}
         {/* Author Info */}
         {recipe.createdBy && (
-          <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-2xl shadow-lg p-6 mb-8">
+          <div className="bg-linear-to-r from-green-50 to-green-100 rounded-2xl shadow-lg p-6 mb-8">
             <h3 className="text-lg font-bold text-gray-800 mb-3">Recipe by</h3>
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
+              <div className="w-12 h-12 bg-linear-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
                 {recipe.createdBy.name?.charAt(0).toUpperCase() || "U"}
               </div>
               <div>
@@ -412,6 +408,12 @@ export default function RecipeDetail() {
             </div>
           </div>
         )}
+
+        <div className="lg:col-span-1">
+          <div className="sticky bottom-4">
+            <AiChefBot recipe={recipe} />
+          </div>
+        </div>
       </div>
 
       {/* Delete Modal */}
@@ -454,10 +456,13 @@ export default function RecipeDetail() {
       {/* Print Styles */}
       <style>{`
         @media print {
+          .search-drawer {
+            display: none !important;
+          }
           button, .no-print {
             display: none !important;
           }
-          .bg-gradient-to-b {
+          .bg-linear-to-b {
             background: white !important;
           }
         }

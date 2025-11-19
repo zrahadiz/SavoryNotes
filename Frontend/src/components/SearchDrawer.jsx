@@ -97,7 +97,7 @@ export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
       )}
 
       <div
-        className={`fixed left-0 right-0 bottom-0 
+        className={`search-drawer fixed left-0 right-0 bottom-0 
         bg-white rounded-t-2xl md:rounded-t-3xl shadow-xl z-50
         h-[85vh] md:h-[75vh]
         transform transition-transform duration-300 ease-in-out ${
