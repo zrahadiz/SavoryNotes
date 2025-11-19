@@ -5,7 +5,6 @@ import {
   HiX,
   HiSearch,
   HiChevronDown,
-  HiUser,
   HiLogout,
   HiBell,
 } from "react-icons/hi";
@@ -29,14 +28,12 @@ export default function Header() {
     { label: "About", path: "/about" },
   ];
 
-  // Check if current path matches the nav item
   const isActive = (path) => {
     return (
       location.pathname === path || location.pathname.startsWith(path + "/")
     );
   };
 
-  // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);
@@ -45,7 +42,6 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close profile dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (profileRef.current && !profileRef.current.contains(event.target)) {
@@ -56,7 +52,6 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Close mobile menu when resizing to desktop
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 768) {
@@ -78,7 +73,6 @@ export default function Header() {
     navigate("/");
   };
 
-  // Get initials for avatar
   const getInitials = (name) => {
     if (!name) return "U";
     return name
@@ -269,7 +263,7 @@ export default function Header() {
             <button
               onClick={() => {
                 closeMenu();
-                navigate("/search");
+                setIsSearchOpen(true);
               }}
               className="w-full px-4 py-3 rounded-xl flex items-center gap-3 bg-white border border-gray-200 hover:border-green-500 hover:bg-green-50 transition-all duration-200 group"
             >
@@ -305,6 +299,16 @@ export default function Header() {
                     </div>
                   </div>
                 </div>
+
+                <button
+                  onClick={() => navigate("/approve-user")}
+                  className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg hover:bg-blue-50 transition-colors group cursor-pointer"
+                >
+                  <HiBell className="w-5 h-5 text-gray-500 group-hover:text-blue-600" />
+                  <span className="text-gray-700 group-hover:text-blue-600 font-medium">
+                    Inbox
+                  </span>
+                </button>
 
                 <button
                   onClick={handleLogout}
