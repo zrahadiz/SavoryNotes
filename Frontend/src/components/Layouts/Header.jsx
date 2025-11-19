@@ -7,6 +7,7 @@ import {
   HiChevronDown,
   HiUser,
   HiLogout,
+  HiBell,
 } from "react-icons/hi";
 import { useAuthStore } from "@/store/authStore";
 import SearchDrawer from "../SearchDrawer";
@@ -193,6 +194,15 @@ export default function Header() {
                         </div>
                       </div>
                       <div className="p-2">
+                        <button
+                          onClick={() => navigate("/approve-user")}
+                          className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg hover:bg-blue-50 transition-colors group cursor-pointer"
+                        >
+                          <HiBell className="w-5 h-5 text-gray-500 group-hover:text-blue-600" />
+                          <span className="text-gray-700 group-hover:text-blue-600 font-medium">
+                            Inbox
+                          </span>
+                        </button>
                         <button
                           onClick={handleLogout}
                           className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg hover:bg-red-50 transition-colors group cursor-pointer"

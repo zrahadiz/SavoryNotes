@@ -2,27 +2,66 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 
+import api from "@/api/axios";
+
+import { toast } from "@/lib/toast";
+import Loading from "@/components/Loading";
+
 import { FcGoogle } from "react-icons/fc";
 
 export default function Login() {
   const navigate = useNavigate();
+
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-
-  const [rememberMe, setRememberMe] = useState(false);
-
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
+
   const [showPassword, setShowPassword] = useState(false);
   const [repeatShowPassword, setRepeatShowPassword] = useState(false);
 
-  const handleSubmit = (e) => {
+  const [loadingState, setLoadingState] = useState(false);
+  const [loadingText, setLoadingText] = useState("");
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Register attempt:", { email, password });
-    // Add your login logic here
+    console.log("Register attempt:", { name, email, password, repeatPassword });
+
+    if (password !== repeatPassword) {
+      toast("Password and Confirm password must be the same", {
+        type: "error",
+      });
+      return;
+    }
+    setLoadingState(true);
+    setLoadingText("Logging in...");
+    try {
+      const { data } = await api.post("/auth/register", {
+        name,
+        email,
+        password,
+        role: "admin",
+      });
+
+      toast(data.payload.message || "Register Success", {
+        type: "success",
+      });
+      navigate("/login", { replace: true });
+    } catch (error) {
+      console.error(error.response || "Failed to login");
+      toast(error.response.data.payload.message || "Failed to login", {
+        type: "error",
+      });
+    } finally {
+      setLoadingState(false);
+      setLoadingText("");
+    }
   };
 
   return (
     <div className="min-h-screen flex">
+      <Loading status={loadingState} fullscreen text={loadingText} />
+
       {/* Left Side */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <motion.div
@@ -96,8 +135,8 @@ export default function Login() {
                       borderColor: "#e5e7eb",
                       "--tw-ring-color": "#4CAF50",
                     }}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                   />
                 </div>
 

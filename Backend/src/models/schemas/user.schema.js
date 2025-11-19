@@ -21,9 +21,23 @@ const userSchema = new Schema(
       enum: ["admin", "public"],
       default: "admin",
     },
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
+    respondedAt: {
+      type: Date,
+      default: null,
+    },
+    respondedBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
     active: {
       type: Boolean,
-      default: true,
+      default: false,
     },
   },
   {

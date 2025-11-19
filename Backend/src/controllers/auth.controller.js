@@ -1,8 +1,9 @@
 const { User } = require("../models");
 
-const { hashPassword, comparePassword } = require("../utils/password");
+const { comparePassword } = require("../utils/password");
 const { generateToken, generateRefreshToken } = require("../utils/jwt");
 const { response } = require("../utils/formatResponse");
+const { sendEmail } = require("../utils/nodeMailer");
 
 const register = async (req, res) => {
   try {
@@ -13,7 +14,20 @@ const register = async (req, res) => {
       return response(400, false, null, "Email already exists", res);
     }
 
-    const user = await User.create({ name, email, password, role });
+    const user = await User.create({
+      name,
+      email,
+      password,
+      role,
+      status: "pending",
+    });
+
+    await sendEmail(
+      email,
+      "Your account request has been received",
+      `<p>Hi ${name},</p>
+       <p>Your account request has been submitted. You will be notified once approved.</p>`
+    );
 
     return response(
       201,
@@ -24,7 +38,7 @@ const register = async (req, res) => {
         email: user.email,
         role: user.role,
       },
-      "User created",
+      "Registration submitted. Wait for admin approval.",
       res
     );
   } catch (error) {
@@ -39,6 +53,20 @@ const login = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) {
       return response(400, false, null, "Invalid Email", res);
+    }
+
+    if (user.status === "pending") {
+      return response(
+        403,
+        false,
+        null,
+        "Your account is still pending approval.",
+        res
+      );
+    }
+
+    if (user.status === "rejected") {
+      return response(403, false, null, "Your account has been rejected.", res);
     }
 
     const isMatch = await comparePassword(password, user.password);
