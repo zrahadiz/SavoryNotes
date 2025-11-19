@@ -9,15 +9,17 @@ import {
   HiTrash,
   HiShare,
   HiPrinter,
-  HiX,
   HiCheck,
   HiChevronLeft,
   HiChevronRight,
 } from "react-icons/hi";
+import { toast } from "@/lib/toast";
 import api from "@/api/axios";
 import { useAuthStore } from "@/store/authStore";
 import RecipeInstructions from "../../components/RecipeInstructions";
 import AiChefBot from "../../components/AIChefBot";
+
+import imgNotFound from "@/assets/imgNotFound.png";
 
 const categoryLabels = {
   entree: "Entree",
@@ -65,7 +67,9 @@ export default function RecipeDetail() {
       setRecipe(recipeData);
     } catch (error) {
       console.error("Error fetching recipe:", error);
-      alert("Failed to load recipe");
+      toast(error.response.data.payload.message || "Failed to get recipes.", {
+        type: "error",
+      });
       navigate("/recipes");
     } finally {
       setLoading(false);
@@ -78,12 +82,19 @@ export default function RecipeDetail() {
 
   const handleDelete = async () => {
     try {
-      await api.delete(`/posts/${slug}`);
-      alert("Recipe deleted successfully!");
+      const { data } = await api.delete(`/posts/${slug}`);
+      toast(data.payload.message || "Recipe deleted!", {
+        type: "success",
+      });
       navigate("/recipes");
     } catch (error) {
       console.error("Error deleting recipe:", error);
-      alert("Failed to delete recipe");
+      toast(
+        error.response.data.payload.message || "Failed to delete recipes.",
+        {
+          type: "error",
+        }
+      );
     }
   };
 
@@ -97,11 +108,15 @@ export default function RecipeDetail() {
         });
       } catch (error) {
         console.log("Share cancelled");
+        toast("Share cancelled", {
+          type: "error",
+        });
       }
     } else {
-      // Fallback: copy to clipboard
       navigator.clipboard.writeText(window.location.href);
-      alert("Link copied to clipboard!");
+      toast("Link copied to clipboard!", {
+        type: "error",
+      });
     }
   };
 
@@ -148,12 +163,12 @@ export default function RecipeDetail() {
         {recipe.images && recipe.images.length > 0 ? (
           <div className="relative w-full h-full">
             <img
-              src={recipe.images[currentImageIndex]}
+              src={recipe.images[currentImageIndex] || imgNotFound}
               alt={recipe.title}
               className="w-full h-full object-cover"
               onError={(e) => {
-                e.target.src =
-                  "https://via.placeholder.com/1200x800?text=Recipe+Image";
+                e.target.src = imgNotFound;
+                e.target.className = "w-full h-full object-contain";
               }}
             />
             <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent"></div>
@@ -229,7 +244,7 @@ export default function RecipeDetail() {
         </div>
 
         {/* Title Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 pointer-events-none">
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-wrap gap-2 mb-4">
               <span
@@ -352,7 +367,7 @@ export default function RecipeDetail() {
                   className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition cursor-pointer"
                   onClick={() => toggleIngredient(index)}
                 >
-                  <div className="flex-shrink-0 mt-1">
+                  <div className="shrink-0 mt-1">
                     {checkedIngredients.includes(index) ? (
                       <div className="w-5 h-5 bg-green-500 rounded flex items-center justify-center">
                         <HiCheck className="w-4 h-4 text-white" />
@@ -384,30 +399,6 @@ export default function RecipeDetail() {
           </h2>
           <RecipeInstructions content={recipe.content} />
         </div>
-        {/* Author Info */}
-        {recipe.createdBy && (
-          <div className="bg-linear-to-r from-green-50 to-green-100 rounded-2xl shadow-lg p-6 mb-8">
-            <h3 className="text-lg font-bold text-gray-800 mb-3">Recipe by</h3>
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-linear-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
-                {recipe.createdBy.name?.charAt(0).toUpperCase() || "U"}
-              </div>
-              <div>
-                <p className="font-semibold text-gray-800">
-                  {recipe.createdBy.name || "Anonymous"}
-                </p>
-                <p className="text-sm text-gray-600">
-                  Created on{" "}
-                  {new Date(recipe.createdAt).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
 
         <div className="lg:col-span-1">
           <div className="sticky bottom-4">
@@ -418,33 +409,34 @@ export default function RecipeDetail() {
 
       {/* Delete Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 transform transition-all">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-gray-800">Delete Recipe</h3>
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-full transition"
-                aria-label="Close modal"
-              >
-                <HiX className="w-5 h-5" />
-              </button>
+            <div className="flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mx-auto mb-4">
+              <HiTrash className="w-8 h-8 text-red-600" />
             </div>
-            <p className="text-gray-600 mb-6">
+
+            <h3 className="text-xl font-bold text-gray-900 text-center mb-2">
+              Delete Recipe?
+            </h3>
+
+            <p className="text-gray-600 text-center mb-6">
               Are you sure you want to delete{" "}
-              <span className="font-semibold">"{recipe.title}"</span>? This
-              action cannot be undone.
+              <span className="font-semibold text-gray-900">
+                "{recipe.title}"
+              </span>
+              ? This action cannot be undone.
             </p>
+
             <div className="flex gap-3">
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition"
+                className="flex-1 py-3 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold rounded-xl transition-all duration-200 cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
-                className="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition"
+                className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-xl transition-all duration-200 cursor-pointer shadow-md hover:shadow-lg"
               >
                 Delete
               </button>

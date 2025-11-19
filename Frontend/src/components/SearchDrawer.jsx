@@ -8,11 +8,34 @@ import {
   HiUser,
   HiChevronLeft,
   HiChevronRight,
+  HiTag,
 } from "react-icons/hi";
+import { toast } from "@/lib/toast";
 import api from "@/api/axios";
 import imgNotFound from "@/assets/imgNotFound.png";
+import { useNavigate } from "react-router-dom";
+
+const categoryList = {
+  ALL: "all",
+  ENTREE: "entree",
+  BREAKFAST: "breakfast",
+  LUNCH: "lunch",
+  DINNER: "dinner",
+  DESSERT: "dessert",
+  "QUICK BITES": "quickBites",
+};
+
+const difficulties = ["All", "Easy", "Medium", "Hard"];
+
+const sortOptions = [
+  { label: "Newest First", value: "newest" },
+  { label: "Oldest First", value: "oldest" },
+  { label: "A-Z", value: "az" },
+  { label: "Z-A", value: "za" },
+];
 
 export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -20,6 +43,7 @@ export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
   const [selectedFilters, setSelectedFilters] = useState({
     category: "all",
     difficulty: "all",
+    sort: "newest",
   });
   const [recipes, setRecipes] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
@@ -31,7 +55,7 @@ export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
       const params = new URLSearchParams();
 
       if (selectedFilters.category !== "all") {
-        params.append("category", selectedFilters.category.toLowerCase());
+        params.append("category", selectedFilters.category);
       }
 
       if (selectedFilters.difficulty !== "all") {
@@ -41,7 +65,7 @@ export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
       if (searchQuery.trim()) {
         params.append("search", searchQuery.trim());
       }
-
+      params.append("sort", selectedFilters.sort);
       params.append("page", currentPage);
       params.append("limit", 6);
 
@@ -53,6 +77,9 @@ export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
       setTotalData(data.pagination?.total);
     } catch (error) {
       console.error("Error fetching recipes:", error);
+      toast(error.response.data.payload.message || "Failed to get recipes.", {
+        type: "error",
+      });
       setRecipes([]);
       setTotalPages(0);
       setTotalData(0);
@@ -91,60 +118,66 @@ export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
     <>
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/20 bg-opacity-50 z-40 transition-opacity backdrop-blur-xs"
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 transition-opacity"
           onClick={onClose}
         />
       )}
 
       <div
         className={`search-drawer fixed left-0 right-0 bottom-0 
-        bg-white rounded-t-2xl md:rounded-t-3xl shadow-xl z-50
-        h-[85vh] md:h-[75vh]
-        transform transition-transform duration-300 ease-in-out ${
-          isOpen ? "translate-y-0" : "translate-y-full"
-        }`}
+      bg-white rounded-t-3xl shadow-2xl z-50
+      h-[90vh] md:h-[80vh]
+      transform transition-transform duration-300 ease-in-out ${
+        isOpen ? "translate-y-0" : "translate-y-full"
+      }`}
       >
         <div className="h-full flex flex-col">
           {/* Header Section */}
-          <div className="px-4 sm:px-6 pt-3 pb-4 sm:pb-6 border-b border-gray-200 bg-green-50 shrink-0">
+          <div className="px-4 sm:px-6 pt-3 pb-4 sm:pb-5 border-b border-gray-200 bg-linear-to-br from-green-50 to-green-100/50 shrink-0">
             {/* Drag Handle for Mobile */}
             <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-4 md:hidden"></div>
 
-            <div className="flex justify-between items-center mb-3 sm:mb-4">
-              <h2 className="text-xl sm:text-2xl font-bold text-green-500">
-                Search Recipes
-              </h2>
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+                  <HiSearch className="w-5 h-5 text-white" />
+                </div>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
+                  Find Your Recipe
+                </h2>
+              </div>
               <button
                 onClick={onClose}
-                className="p-2 rounded-full hover:bg-gray-200 transition touch-manipulation cursor-pointer"
+                className="p-2 rounded-full hover:bg-white/80 transition-all duration-200 touch-manipulation cursor-pointer"
                 aria-label="Close search"
               >
-                <HiX className="w-5 h-5 sm:w-6 sm:h-6" />
+                <HiX className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
               </button>
             </div>
 
             {/* Search Input */}
-            <div className="relative mb-3 sm:mb-4">
-              <HiSearch className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
+            <div className="relative mb-4">
+              <HiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search recipes..."
+                placeholder="Search by name, ingredient, or tag..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3 text-sm sm:text-base rounded-full border-2 border-gray-200 focus:border-green-500 outline-none transition"
+                className="w-full pl-12 pr-4 py-3 text-sm sm:text-base rounded-2xl border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-green-200 outline-none transition-all shadow-sm"
               />
             </div>
 
             {/* Filters */}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <HiFilter className="w-4 h-4 text-gray-600" />
-                <span className="text-xs sm:text-sm font-semibold text-gray-600">
-                  Filters:
+                <HiFilter className="w-4 h-4 text-primary" />
+                <span className="text-sm font-semibold text-gray-700">
+                  Filter Results
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Category Filter */}
                 <select
                   value={selectedFilters.category}
                   onChange={(e) =>
@@ -153,16 +186,16 @@ export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
                       category: e.target.value,
                     }))
                   }
-                  className="select rounded-full border-2 border-primary text-xs sm:text-sm outline-none cursor-pointer touch-manipulation w-full sm:w-auto"
+                  className="select  rounded-lg border-2 border-gray-200 bg-white text-sm outline-none cursor-pointer"
                 >
-                  <option value="all">All Categories</option>
-                  <option value="breakfast">Breakfast</option>
-                  <option value="lunch">Lunch</option>
-                  <option value="dinner">Dinner</option>
-                  <option value="dessert">Dessert</option>
-                  <option value="snack">Snack</option>
+                  {Object.entries(categoryList).map(([label, value], index) => (
+                    <option key={index} value={value}>
+                      {label}
+                    </option>
+                  ))}
                 </select>
 
+                {/* Difficulty Filter */}
                 <select
                   value={selectedFilters.difficulty}
                   onChange={(e) =>
@@ -171,20 +204,63 @@ export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
                       difficulty: e.target.value,
                     }))
                   }
-                  className="select rounded-full border-2 border-secondary text-xs sm:text-sm outline-none cursor-pointer touch-manipulation w-full sm:w-auto"
+                  className="select  rounded-lg border-2 border-gray-200 bg-white text-sm outline-none cursor-pointer"
                 >
-                  <option value="all">All Levels</option>
-                  <option value="easy">Easy</option>
-                  <option value="medium">Medium</option>
-                  <option value="hard">Hard</option>
+                  {difficulties.map((diff) => (
+                    <option key={diff} value={diff.toLowerCase()}>
+                      {diff}
+                    </option>
+                  ))}
                 </select>
+
+                {/* Sort Filter */}
+                <select
+                  value={selectedFilters.sort}
+                  onChange={(e) =>
+                    setSelectedFilters((prev) => ({
+                      ...prev,
+                      sort: e.target.value,
+                    }))
+                  }
+                  className="select  rounded-lg border-2 border-gray-200 bg-white text-sm outline-none cursor-pointer"
+                >
+                  {sortOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+
+                {/* Clear Button */}
+                <button
+                  onClick={() => {
+                    setSelectedFilters({
+                      category: "all",
+                      difficulty: "all",
+                      sort: "newest",
+                    });
+                    setSearchQuery("");
+                  }}
+                  className="w-full sm:w-auto px-4 py-2 rounded-xl border-2 border-gray-300 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:border-gray-400 transition-all duration-200 cursor-pointer"
+                >
+                  🔄 Clear
+                </button>
               </div>
 
-              <p className="text-xs sm:text-sm text-gray-600">
-                Found{" "}
-                <span className="font-bold text-green-500">{totalData}</span>{" "}
-                recipes
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-gray-600">
+                  Found{" "}
+                  <span className="font-bold text-primary">{totalData}</span>{" "}
+                  {totalData === 1 ? "recipe" : "recipes"}
+                </p>
+                {(selectedFilters.category !== "all" ||
+                  selectedFilters.difficulty !== "all" ||
+                  searchQuery) && (
+                  <span className="text-xs text-primary font-medium">
+                    Filters active
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -192,19 +268,19 @@ export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
           <div className="flex-1 overflow-y-auto overscroll-contain px-4 sm:px-6 py-4 sm:py-6">
             {loading ? (
               <div className="flex flex-col items-center justify-center py-16 sm:py-20">
-                <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                <p className="text-gray-500 text-sm sm:text-base">
-                  Loading recipes...
+                <div className="w-14 h-14 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p className="text-gray-600 text-sm sm:text-base font-medium">
+                  Searching recipes...
                 </p>
               </div>
             ) : recipes.length === 0 ? (
               <div className="text-center py-12 sm:py-16">
-                <div className="text-5xl sm:text-6xl mb-4">🔍</div>
-                <p className="text-gray-500 text-base sm:text-lg">
+                <div className="text-6xl sm:text-7xl mb-4">🔍</div>
+                <p className="text-gray-600 text-lg sm:text-xl font-semibold mb-2">
                   No recipes found
                 </p>
-                <p className="text-gray-400 text-sm sm:text-base mt-2">
-                  Try adjusting your search or filters
+                <p className="text-gray-500 text-sm sm:text-base">
+                  Try adjusting your search terms or filters
                 </p>
               </div>
             ) : (
@@ -212,78 +288,96 @@ export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
                 {recipes.map((recipe) => (
                   <div
                     key={recipe._id}
-                    className="bg-white rounded-xl sm:rounded-2xl shadow-md hover:shadow-xl active:shadow-lg transition-all duration-300 transform hover:-translate-y-1 active:translate-y-0 cursor-pointer border border-gray-100"
+                    className="bg-white rounded-2xl shadow-md hover:shadow-xl active:shadow-lg transition-all duration-300 transform hover:-translate-y-1 active:translate-y-0 cursor-pointer border-2 border-gray-100 hover:border-green-200 overflow-hidden"
                     onClick={() => {
-                      // Add navigation to recipe detail page
-                      // navigate(`/recipe/${recipe._id}`);
+                      navigate(`/recipe/${recipe.slug}`);
+                      onClose();
                     }}
                   >
-                    <div className="flex gap-3 sm:gap-4 p-3 sm:p-4">
+                    <div className="flex gap-4 p-4">
                       {/* Image */}
-                      <div className="shrink-0">
+                      <div className="shrink-0 relative">
                         <img
-                          src={recipe.images[0] || imgNotFound}
+                          src={recipe.images?.[0] || imgNotFound}
                           alt={recipe.title}
-                          className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg sm:rounded-xl object-cover"
+                          className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl object-cover shadow-sm"
                           onError={(e) => {
                             e.target.src = imgNotFound;
                             e.target.className =
-                              "w-20 h-20 sm:w-24 sm:h-24 rounded-lg sm:rounded-xl object-contain";
+                              "w-24 h-24 sm:w-28 sm:h-28 rounded-xl object-contain shadow-sm";
                           }}
                         />
+
+                        {/* Category Badge on Image */}
+                        {recipe.category && (
+                          <div className="absolute -top-2 -right-2 bg-primary text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">
+                            {recipe.category}
+                          </div>
+                        )}
                       </div>
 
                       {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-base sm:text-lg font-bold mb-1 truncate text-gray-800">
-                          {recipe.title}
-                        </h3>
-                        <p className="text-xs sm:text-sm text-gray-600 mb-2 line-clamp-2">
-                          {recipe.description}
-                        </p>
+                      <div className="flex-1 min-w-0 flex flex-col">
+                        <div className="flex-1">
+                          <h3 className="text-base sm:text-lg font-bold mb-1 text-gray-800 line-clamp-1">
+                            {recipe.title}
+                          </h3>
+                          <p className="text-xs sm:text-sm text-gray-600 mb-2 line-clamp-2">
+                            {recipe.description}
+                          </p>
 
-                        {/* Meta Info */}
-                        <div className="flex items-center gap-2 sm:gap-3 text-xs text-gray-500 mb-2">
-                          {recipe.time && (
-                            <div className="flex items-center gap-1">
-                              <HiClock className="w-3 h-3" />
-                              <span className="hidden xs:inline">
-                                {recipe.time}
-                              </span>
-                            </div>
-                          )}
-                          {recipe.difficulty && (
-                            <div className="flex items-center gap-1">
-                              <HiFire className="w-3 h-3" />
-                              <span className="hidden sm:inline">
-                                {recipe.difficulty}
-                              </span>
-                              <span className="sm:hidden">
-                                {recipe.difficulty[0]}
-                              </span>
-                            </div>
-                          )}
-                          {recipe.servings && (
-                            <div className="flex items-center gap-1">
-                              <HiUser className="w-3 h-3" />
-                              <span>{recipe.servings}</span>
-                            </div>
-                          )}
+                          {/* Meta Info */}
+                          <div className="flex items-center gap-3 text-xs text-gray-500 mb-2">
+                            {recipe.time && (
+                              <div className="flex items-center gap-1">
+                                <HiClock className="w-3.5 h-3.5 text-green-600" />
+                                <span className="font-medium">
+                                  {recipe.time}
+                                </span>
+                              </div>
+                            )}
+                            {recipe.difficulty && (
+                              <div className="flex items-center gap-1">
+                                <HiFire
+                                  className={`w-3.5 h-3.5 ${
+                                    recipe.difficulty?.toLowerCase() === "easy"
+                                      ? "text-green-600"
+                                      : recipe.difficulty?.toLowerCase() ===
+                                        "medium"
+                                      ? "text-yellow-600"
+                                      : "text-red-600"
+                                  }`}
+                                />
+                                <span className="font-medium capitalize">
+                                  {recipe.difficulty}
+                                </span>
+                              </div>
+                            )}
+                            {recipe.servings && (
+                              <div className="flex items-center gap-1">
+                                <HiUser className="w-3.5 h-3.5 text-orange-600" />
+                                <span className="font-medium">
+                                  {recipe.servings}
+                                </span>
+                              </div>
+                            )}
+                          </div>
                         </div>
 
                         {/* Tags */}
                         {recipe.tags && recipe.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1">
+                          <div className="flex flex-wrap gap-1.5 mt-auto">
                             {recipe.tags.slice(0, 3).map((tag, idx) => (
                               <span
                                 key={idx}
-                                className="px-2 py-0.5 sm:py-1 rounded-full text-xs text-white font-medium bg-orange-500"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 hover:bg-orange-100 hover:text-orange-700 transition-colors"
                               >
+                                <HiTag className="w-3 h-3" />
                                 {tag}
                               </span>
                             ))}
                             {recipe.tags.length > 3 && (
-                              <span className="px-2 py-0.5 sm:py-1 rounded-full text-xs text-gray-600 font-medium bg-gray-200">
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
                                 +{recipe.tags.length - 3}
                               </span>
                             )}
@@ -299,59 +393,61 @@ export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
 
           {/* Pagination */}
           {totalPages > 1 && !loading && (
-            <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 bg-gray-50 shrink-0">
-              {/* Mobile Pagination - Simplified */}
+            <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 bg-linear-to-br from-gray-50 to-white shrink-0">
+              {/* Mobile Pagination */}
               <div className="flex sm:hidden items-center justify-between gap-2">
                 <button
                   onClick={() =>
                     setCurrentPage((prev) => Math.max(1, prev - 1))
                   }
                   disabled={currentPage === 1}
-                  className="flex items-center gap-1 px-3 py-2 rounded-full font-semibold text-sm transition disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation cursor-pointer"
-                  style={{
-                    backgroundColor: currentPage === 1 ? "#e5e7eb" : "#4CAF50",
-                    color: currentPage === 1 ? "#9ca3af" : "white",
-                  }}
+                  className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation cursor-pointer shadow-sm ${
+                    currentPage === 1
+                      ? "bg-[#e5e7eb] #9ca3af"
+                      : "bg-primary text-white"
+                  }`}
                 >
                   <HiChevronLeft className="w-4 h-4" />
                   Prev
                 </button>
 
-                <span className="text-sm font-medium text-gray-600">
-                  {currentPage} / {totalPages}
-                </span>
+                <div className="flex flex-col items-center">
+                  <span className="text-sm font-bold text-gray-700">
+                    Page {currentPage}
+                  </span>
+                  <span className="text-xs text-gray-500">of {totalPages}</span>
+                </div>
 
                 <button
                   onClick={() =>
                     setCurrentPage((prev) => Math.min(totalPages, prev + 1))
                   }
                   disabled={currentPage === totalPages}
-                  className="flex items-center gap-1 px-3 py-2 rounded-full font-semibold text-sm transition disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation cursor-pointer"
-                  style={{
-                    backgroundColor:
-                      currentPage === totalPages ? "#e5e7eb" : "#4CAF50",
-                    color: currentPage === totalPages ? "#9ca3af" : "white",
-                  }}
+                  className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation cursor-pointer shadow-sm ${
+                    currentPage === totalPages
+                      ? "bg-[#e5e7eb] #9ca3af"
+                      : "bg-primary text-white"
+                  }`}
                 >
                   Next
                   <HiChevronRight className="w-4 h-4" />
                 </button>
               </div>
 
-              {/* Desktop Pagination - Full */}
+              {/* Desktop Pagination */}
               <div className="hidden sm:flex items-center justify-between">
                 <button
                   onClick={() =>
                     setCurrentPage((prev) => Math.max(1, prev - 1))
                   }
                   disabled={currentPage === 1}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  style={{
-                    backgroundColor: currentPage === 1 ? "#e5e7eb" : "#4CAF50",
-                    color: currentPage === 1 ? "#9ca3af" : "white",
-                  }}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-sm hover:shadow-md ${
+                    currentPage === 1
+                      ? "bg-[#e5e7eb] #9ca3af"
+                      : "bg-primary text-white"
+                  }`}
                 >
-                  <HiChevronLeft className="w-4 h-4" />
+                  <HiChevronLeft className="w-5 h-5" />
                   Previous
                 </button>
 
@@ -372,14 +468,11 @@ export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
                       <button
                         key={page}
                         onClick={() => setCurrentPage(page)}
-                        className="w-10 h-10 rounded-full font-semibold transition cursor-pointer"
-                        style={{
-                          backgroundColor:
-                            currentPage === page ? "#4CAF50" : "white",
-                          color: currentPage === page ? "white" : "#4CAF50",
-                          border:
-                            currentPage === page ? "none" : "2px solid #4CAF50",
-                        }}
+                        className={`w-10 h-10 rounded-xl font-semibold transition-all cursor-pointer hover:scale-105 ${
+                          currentPage === page
+                            ? "bg-primary text-white border-0 shadow-primary"
+                            : "bg-white text-primary border-2 border-primary shadow-none"
+                        }`}
                       >
                         {page}
                       </button>
@@ -392,15 +485,14 @@ export default function SearchDrawer({ isOpen, onClose, initialSearch }) {
                     setCurrentPage((prev) => Math.min(totalPages, prev + 1))
                   }
                   disabled={currentPage === totalPages}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  style={{
-                    backgroundColor:
-                      currentPage === totalPages ? "#e5e7eb" : "#4CAF50",
-                    color: currentPage === totalPages ? "#9ca3af" : "white",
-                  }}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-sm hover:shadow-md ${
+                    currentPage === totalPages
+                      ? "bg-[#e5e7eb] #9ca3af"
+                      : "bg-primary text-white"
+                  }`}
                 >
                   Next
-                  <HiChevronRight className="w-4 h-4" />
+                  <HiChevronRight className="w-5 h-5" />
                 </button>
               </div>
             </div>
