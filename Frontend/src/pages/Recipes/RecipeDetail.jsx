@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+
 import {
   HiArrowLeft,
   HiClock,
@@ -13,11 +14,14 @@ import {
   HiChevronLeft,
   HiChevronRight,
 } from "react-icons/hi";
+
 import { toast } from "@/lib/toast";
 import api from "@/api/axios";
 import { useAuthStore } from "@/store/authStore";
-import RecipeInstructions from "../../components/RecipeInstructions";
-import AiChefBot from "../../components/AIChefBot";
+import Loading from "@/components/Loading";
+
+import RecipeInstructions from "@/components/RecipeInstructions";
+import AiChefBot from "@/components/AIChefBot";
 
 import imgNotFound from "@/assets/imgNotFound.png";
 
@@ -50,8 +54,10 @@ export default function RecipeDetail() {
   const { user } = useAuthStore();
   const navigate = useNavigate();
 
+  const [loadingState, setLoadingState] = useState(false);
+  const [loadingText, setLoadingText] = useState("");
+
   const [recipe, setRecipe] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [checkedIngredients, setCheckedIngredients] = useState([]);
@@ -59,6 +65,8 @@ export default function RecipeDetail() {
   const isAdmin = user?.role === "admin";
 
   const fetchRecipe = async () => {
+    setLoadingState(true);
+    setLoadingText("Getting recipe...");
     try {
       const { data } = await api.get(`/posts/${slug}`);
       const recipeData = data.payload.datas;
@@ -70,7 +78,8 @@ export default function RecipeDetail() {
       });
       navigate("/recipes");
     } finally {
-      setLoading(false);
+      setLoadingState(false);
+      setLoadingText("");
     }
   };
 
@@ -140,21 +149,11 @@ export default function RecipeDetail() {
     );
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-linear-to-b from-white via-green-50 to-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-500 text-lg">Loading recipe...</p>
-        </div>
-      </div>
-    );
-  }
-
   if (!recipe) return null;
 
   return (
     <div className="min-h-screen bg-linear-to-b from-white via-green-50 to-white">
+      <Loading status={loadingState} fullscreen text={loadingText} />
       {/* Hero Section */}
       <div className="relative h-[60vh] md:h-[70vh] bg-gray-900">
         {/* Image Carousel */}
