@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 
 import { useAuthStore } from "@/store/authStore";
 import { Link } from "react-router-dom";
-import api from "@/api/axios";
 
+import api from "@/api/axios";
 import { toast } from "@/lib/toast";
+
 import Loading from "@/components/Loading";
 import RecipeCard from "@/components/RecipeCard";
 
@@ -26,6 +27,7 @@ const categoryList = {
 };
 
 const difficulties = ["All", "Easy", "Medium", "Hard"];
+
 const sortOptions = [
   { label: "Newest First", value: "newest" },
   { label: "Oldest First", value: "oldest" },
@@ -41,10 +43,12 @@ export default function RecipesList() {
   const [loadingText, setLoadingText] = useState("");
 
   const [recipes, setRecipes] = useState([]);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedDifficulty, setSelectedDifficulty] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
+
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalData, setTotalData] = useState(0);
@@ -133,7 +137,6 @@ export default function RecipesList() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Search and Filters */}
         <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 mb-8">
           <div className="relative mb-4">
             <HiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -236,7 +239,6 @@ export default function RecipesList() {
               ))}
             </div>
 
-            {/* Pagination */}
             {totalPages > 1 && (
               <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-2xl shadow-lg p-6">
                 <button
