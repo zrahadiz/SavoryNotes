@@ -8,6 +8,7 @@ import { toast } from "@/lib/toast";
 import ImageUploader from "@/components/ImageUploader";
 
 import { HiPlus, HiX, HiArrowLeft, HiCheck } from "react-icons/hi";
+import InstructionsInput from "../../components/InstructionInput";
 
 const categories = [
   { value: "entree", label: "Entree" },
@@ -211,7 +212,7 @@ export default function EditRecipePage() {
       toast(data.payload.message || "Recipe updated successfully!", {
         type: "success",
       });
-      navigate(`/recipes`);
+      navigate(`/recipe/${data.payload.datas.slug}`);
     } catch (error) {
       console.error("Error updating recipe:", error);
       toast(
@@ -234,7 +235,7 @@ export default function EditRecipePage() {
       <div className="bg-linear-to-r from-secondary to-orange-600 text-white py-8 sm:py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("-1")}
             className="flex items-center gap-2 text-white hover:text-orange-100 transition mb-4 cursor-pointer"
           >
             <HiArrowLeft className="w-5 h-5" />
@@ -438,13 +439,10 @@ export default function EditRecipePage() {
               📖 Cooking Instructions
             </h2>
 
-            <textarea
-              name="content"
+            <InstructionsInput
               value={formData.content}
-              onChange={handleChange}
-              placeholder="Write detailed step-by-step instructions...&#10;&#10;1. First, prepare...&#10;2. Then, mix...&#10;3. Finally, bake..."
-              rows="10"
-              className="textarea w-full border-2 border-gray-200 rounded-xl focus:border-secondary outline-none transition"
+              onChange={(e) => handleChange(e)}
+              name="content"
               required
             />
           </div>

@@ -14,6 +14,8 @@ import { useEffect } from "react";
 import RecipesList from "@/pages/Recipes/RecipesList";
 import AddRecipes from "@/pages/Recipes/AddRecipes";
 import EditRecipePage from "./pages/Recipes/EditRecipes";
+import RecipeDetail from "./pages/Recipes/RecipeDetail";
+import About from "./pages/About";
 
 function App() {
   const { checkAuth, fetchUser } = useAuthStore();
@@ -58,6 +60,24 @@ function App() {
             element={
               <AppLayout>
                 <AddRecipes />
+              </AppLayout>
+            }
+          />
+
+          <Route
+            path="/about"
+            element={
+              <AppLayout>
+                <About />
+              </AppLayout>
+            }
+          />
+
+          <Route
+            path="/recipe/:slug"
+            element={
+              <AppLayout>
+                <RecipeDetail />
               </AppLayout>
             }
           />

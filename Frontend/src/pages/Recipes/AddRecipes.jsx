@@ -8,6 +8,7 @@ import ImageUploader from "@/components/ImageUploader";
 import Loading from "@/components/Loading";
 
 import { HiPlus, HiX, HiArrowLeft, HiCheck } from "react-icons/hi";
+import InstructionsInput from "../../components/InstructionInput";
 
 const categories = [
   { value: "entree", label: "Entree" },
@@ -389,13 +390,11 @@ export default function CreateRecipePage() {
               📖 Cooking Instructions
             </h2>
 
-            <textarea
-              name="content"
+            <InstructionsInput
               value={formData.content}
-              onChange={handleChange}
-              placeholder="Write detailed step-by-step instructions...&#10;&#10;1. First, prepare...&#10;2. Then, mix...&#10;3. Finally, bake..."
-              rows="10"
-              className="textarea w-full rounded-xl border-2 border-gray-200 focus:border-primary outline-none transition"
+              onChange={(e) => handleChange(e)}
+              name="content"
+              required
             />
           </div>
 

@@ -6,6 +6,7 @@ const cookieParser = require("cookie-parser");
 
 const authRoutes = require("./routes/auth.routes");
 const postRoutes = require("./routes/post.routes");
+const aiRoutes = require("./routes/ai.routes");
 
 dotenv.config();
 const port = process.env.PORT || 3000;
@@ -31,6 +32,7 @@ app.get("/", (req, res) => {
 });
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
+app.use("/api/ai", aiRoutes);
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);

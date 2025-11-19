@@ -97,7 +97,10 @@ export default function RecipeCard({
 
           {/* Buttons */}
           <div className="mt-4 flex flex-col gap-2">
-            <button className="btn w-full py-3 rounded-full font-semibold transition-all duration-300 border-2 border-primary bg-transparent hover:bg-primary text-primary hover:text-white cursor-pointer">
+            <button
+              onClick={() => navigate(`/recipe/${recipe.slug}`)}
+              className="btn w-full py-3 rounded-full font-semibold transition-all duration-300 border-2 border-primary bg-transparent hover:bg-primary text-primary hover:text-white cursor-pointer"
+            >
               VIEW RECIPE
             </button>
 

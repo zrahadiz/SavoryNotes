@@ -65,7 +65,7 @@ export default function SavoryNotesHome() {
   const getRecipes = async () => {
     const params = new URLSearchParams();
     if (activeFilter !== "all") {
-      params.append("category", activeFilter.toLowerCase());
+      params.append("category", activeFilter);
     }
     params.append("limit", 6);
     try {

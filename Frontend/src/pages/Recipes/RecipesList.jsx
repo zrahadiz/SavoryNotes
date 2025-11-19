@@ -15,7 +15,16 @@ import {
   HiChevronRight,
 } from "react-icons/hi";
 
-const categories = ["All", "Breakfast", "Lunch", "Dinner", "Dessert", "Snack"];
+const categoryList = {
+  ALL: "all",
+  ENTREE: "entree",
+  BREAKFAST: "breakfast",
+  LUNCH: "lunch",
+  DINNER: "dinner",
+  DESSERT: "dessert",
+  "QUICK BITES": "quickBites",
+};
+
 const difficulties = ["All", "Easy", "Medium", "Hard"];
 const sortOptions = [
   { label: "Newest First", value: "newest" },
@@ -47,7 +56,7 @@ export default function RecipesList() {
       const params = new URLSearchParams();
 
       if (selectedCategory !== "all") {
-        params.append("category", selectedCategory.toLowerCase());
+        params.append("category", selectedCategory);
       }
 
       if (selectedDifficulty !== "all") {
@@ -147,9 +156,9 @@ export default function RecipesList() {
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="select w-full rounded-lg border-2 border-gray-200  outline-none cursor-pointer"
               >
-                {categories.map((cat) => (
-                  <option key={cat} value={cat.toLowerCase()}>
-                    {cat}
+                {Object.entries(categoryList).map(([label, value], index) => (
+                  <option key={index} value={value}>
+                    {label}
                   </option>
                 ))}
               </select>

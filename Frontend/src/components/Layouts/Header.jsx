@@ -26,7 +26,6 @@ export default function Header() {
     { label: "Home", path: "/home" },
     { label: "Recipes", path: "/recipes" },
     { label: "About", path: "/about" },
-    { label: "Blog", path: "/blog" },
   ];
 
   // Check if current path matches the nav item
@@ -152,7 +151,7 @@ export default function Header() {
               {!isAuthenticated ? (
                 <Link
                   to="/login"
-                  className="px-6 py-2.5 rounded-full text-white font-semibold bg-linear-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg"
+                  className="px-6 py-2.5 rounded-full text-white font-semibold bg-linear-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg cursor-pointer"
                 >
                   Login
                 </Link>
@@ -160,7 +159,7 @@ export default function Header() {
                 <div className="relative" ref={profileRef}>
                   <button
                     onClick={toggleProfile}
-                    className="flex items-center gap-2 pl-2 pr-4 py-2 rounded-full bg-linear-to-r from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 transition-all duration-200 group"
+                    className="flex items-center gap-2 pl-2 pr-4 py-2 rounded-full bg-linear-to-r from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 transition-all duration-200 group cursor-pointer"
                   >
                     <div className="w-8 h-8 rounded-full bg-linear-to-br from-green-500 to-green-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
                       {getInitials(user?.name)}
@@ -196,7 +195,7 @@ export default function Header() {
                       <div className="p-2">
                         <button
                           onClick={handleLogout}
-                          className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg hover:bg-red-50 transition-colors group"
+                          className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg hover:bg-red-50 transition-colors group cursor-pointer"
                         >
                           <HiLogout className="w-5 h-5 text-gray-500 group-hover:text-red-600" />
                           <span className="text-gray-700 group-hover:text-red-600 font-medium">
