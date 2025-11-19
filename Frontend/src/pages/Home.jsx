@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { useAuthStore } from "@/store/authStore";
 import api from "@/api/axios";
+import { toast } from "@/lib/toast";
 
 import RecipeCarousel from "@/components/RecipeCarousel";
 import RecipeCard from "@/components/RecipeCard";
 import SearchDrawer from "@/components/SearchDrawer";
+import Loading from "@/components/Loading";
 
 import CookIllust from "@/assets/cook.png";
 import { HiSearch, HiOutlineSparkles, HiUsers, HiHeart } from "react-icons/hi";
@@ -13,21 +16,21 @@ import { HiSearch, HiOutlineSparkles, HiUsers, HiHeart } from "react-icons/hi";
 const features = [
   {
     icon: <HiOutlineSparkles className="w-8 h-8" />,
-    title: "AI-Powered Search",
+    title: "AI Co-Pilot",
     description:
-      "Our smart AI finds recipes that match your dietary needs and preferences perfectly.",
+      "Your personal co-chef! Instantly ask for ingredient substitutes, precise nutritional counts, or cooking tips for each recipe.",
   },
   {
     icon: <HiHeart className="w-8 h-8" />,
     title: "Allergy-Friendly",
     description:
-      "Filter out allergens and find safe, delicious recipes tailored to your health needs.",
+      "Filter recipes by search based on tags and swap any ingridients to ensure safe, delicious meals for everyone.",
   },
   {
     icon: <HiUsers className="w-8 h-8" />,
-    title: "Personalized Plans",
+    title: "Community-Driven",
     description:
-      "Get custom meal suggestions based on your diet plan, whether keto, vegan, or paleo.",
+      "Share your culinary creations and discover recipes from home cooks around the world.",
   },
 ];
 
@@ -42,7 +45,11 @@ const categoryList = {
 };
 
 export default function SavoryNotesHome() {
+  const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
+
+  const [loadingState, setLoadingState] = useState(false);
+  const [loadingText, setLoadingText] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [initialSearch, setInitialSearch] = useState("");
 
@@ -53,12 +60,23 @@ export default function SavoryNotesHome() {
   const featuredPosts = async () => {
     const params = new URLSearchParams();
     params.append("limit", 10);
+    setLoadingState(true);
+    setLoadingText("Get Featured recipe...");
     try {
       const { data } = await api.get(`/posts?${params.toString()}`);
-      console.log(data);
       setFeaturedRecipes(data.payload.datas);
     } catch (error) {
       console.error(error);
+      toast(
+        error.response.data.payload.message ||
+          "Failed to get featured recipes.",
+        {
+          type: "error",
+        }
+      );
+    } finally {
+      setLoadingState(false);
+      setLoadingText("");
     }
   };
 
@@ -68,11 +86,23 @@ export default function SavoryNotesHome() {
       params.append("category", activeFilter);
     }
     params.append("limit", 6);
+    setLoadingState(true);
+    setLoadingText("Get recipe...");
     try {
       const { data } = await api.get(`/posts?${params.toString()}`);
       setRecipes(data.payload.datas);
     } catch (error) {
       console.error(error);
+      toast(
+        error.response.data.payload.message ||
+          "Failed to get featured recipes.",
+        {
+          type: "error",
+        }
+      );
+    } finally {
+      setLoadingState(false);
+      setLoadingText("");
     }
   };
 
@@ -86,6 +116,7 @@ export default function SavoryNotesHome() {
 
   return (
     <div className="min-h-screen bg-linear-to-b from-white to-green-50 py-24">
+      <Loading status={loadingState} fullscreen text={loadingText} />
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col-reverse md:flex-row items-center gap-12 md:gap-20">
@@ -101,10 +132,16 @@ export default function SavoryNotesHome() {
               assistant.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-              <button className="px-8 py-4 rounded-full text-white font-semibold text-lg bg-green-500 hover:bg-green-600 transition transform hover:scale-105 shadow-lg">
+              <button
+                onClick={() => navigate("/recipes")}
+                className="px-8 py-4 rounded-full text-white font-semibold text-lg bg-green-500 hover:bg-green-600 transition transform cursor-pointer hover:scale-105 shadow-lg"
+              >
                 Start Cooking
               </button>
-              <button className="px-8 py-4 rounded-full border-2 border-green-500 text-green-500 font-semibold text-lg hover:bg-green-500 hover:text-white transition transform hover:scale-105">
+              <button
+                onClick={() => navigate("/about")}
+                className="px-8 py-4 rounded-full border-2 border-green-500 text-green-500 font-semibold text-lg hover:bg-green-500 hover:text-white transition transform cursor-pointer hover:scale-105"
+              >
                 Learn More
               </button>
             </div>
@@ -256,22 +293,19 @@ export default function SavoryNotesHome() {
           </div>
 
           <div className="bg-white rounded-3xl p-8 md:p-12 shadow-lg flex flex-col justify-center order-2 md:order-1">
-            <div className="inline-block px-4 py-2 rounded-full text-sm font-bold text-white mb-6 w-fit bg-secondary">
-              OUR BLOG
-            </div>
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-primary">
-              OUR CULINARY
+              SMART COOKING,
               <br />
-              CHRONICLE
+              SIMPLE LIFE
             </h2>
             <p className="text-gray-600 mb-6">
-              Immerse yourself in our culinary creativity, and discover the
-              stories behind our signature dishes and culinary experiences. Join
-              us in savoring the essence of every dish on your table.
+              We started SavoryNotes to remove kitchen stress. Our solution? The
+              SavoryNotes AI Chef Bot. This technology is the heart of our
+              platform, ensuring that every recipe discovery is perfectly tuned
+              to your life—filtering for allergies, calculating nutritional
+              facts, and providing on-demand guidance that makes cooking
+              enjoyable and effortless.
             </p>
-            <button className="px-8 py-3 rounded-full font-semibold text-white w-fit transition-all duration-300 transform hover:scale-105 shadow-lg bg-primary">
-              READ MORE
-            </button>
           </div>
         </div>
 
@@ -302,7 +336,10 @@ export default function SavoryNotesHome() {
               Share your favorite recipes and become part of our growing
               community!
             </p>
-            <button className="px-10 py-4 rounded-full font-bold text-lg text-green-800 bg-yellow-300 hover:bg-yellow-400 transition transform hover:scale-105 shadow-lg">
+            <button
+              onClick={() => navigate("/register")}
+              className="px-10 py-4 rounded-full font-bold text-lg text-green-800 bg-yellow-300 hover:bg-yellow-400 transition transform hover:scale-105 shadow-lg cursor-pointer"
+            >
               Register Now
             </button>
           </div>
