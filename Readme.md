@@ -84,7 +84,7 @@ MAILERSEND_FROM=your_smtp_email
 
 ### 📧 Email Configuration
 
-The following `sendEmail` calls are currently commented out. **Uncomment them to enable email notifications** in your local environment.
+The following `sendEmail` calls are currently commented out because it's not working in the deployment for now. **Uncomment them to enable email notifications** in your local environment.
 
 > ⚠️ **Note:** Email functionality requires proper SMTP configuration (see Nodemailer settings in `.env` above).
 

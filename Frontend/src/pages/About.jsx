@@ -1,4 +1,7 @@
 import { Link } from "react-router-dom";
+
+import { useAuthStore } from "@/store/authStore";
+
 import {
   HiSparkles,
   HiHeart,
@@ -81,6 +84,7 @@ const stats = [
 ];
 
 export default function About() {
+  const { isAuthenticated } = useAuthStore();
   return (
     <div className="min-h-screen bg-linear-to-b from-white via-green-50 to-white">
       {/* Hero Section */}
@@ -108,12 +112,14 @@ export default function About() {
             >
               Explore Recipes
             </Link>
-            <Link
-              to="/register"
-              className="px-8 py-4 bg-orange-500 text-white rounded-full font-bold text-lg hover:bg-orange-600 transition shadow-xl"
-            >
-              Join Community
-            </Link>
+            {!isAuthenticated && (
+              <Link
+                to="/register"
+                className="px-8 py-4 bg-orange-500 text-white rounded-full font-bold text-lg hover:bg-orange-600 transition shadow-xl"
+              >
+                Join Community
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -265,12 +271,14 @@ export default function About() {
             >
               📧 Email Us
             </a>
-            <Link
-              to="/register"
-              className="px-6 py-3 bg-white border-2 border-green-500 text-green-600 rounded-full font-semibold hover:bg-green-50 transition"
-            >
-              💬 Join Our Community
-            </Link>
+            {!isAuthenticated && (
+              <Link
+                to="/register"
+                className="px-6 py-3 bg-white border-2 border-green-500 text-green-600 rounded-full font-semibold hover:bg-green-50 transition"
+              >
+                💬 Join Our Community
+              </Link>
+            )}
           </div>
         </div>
       </div>
