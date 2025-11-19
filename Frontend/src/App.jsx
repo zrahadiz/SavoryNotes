@@ -19,6 +19,8 @@ import About from "./pages/About";
 import ApproveUser from "./pages/ApproveUser";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
+import GuestRoute from "./components/auth/GuestRoute";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 function App() {
   const { checkAuth, fetchUser } = useAuthStore();
@@ -36,43 +38,47 @@ function App() {
     <>
       <Router>
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route
+            path="/login"
+            element={
+              <GuestRoute>
+                <Login />
+              </GuestRoute>
+            }
+          />
+
+          <Route
+            path="/register"
+            element={
+              <GuestRoute>
+                <Register />
+              </GuestRoute>
+            }
+          />
+
+          <Route
+            path="/forgot-password"
+            element={
+              <GuestRoute>
+                <ForgotPassword />
+              </GuestRoute>
+            }
+          />
+
+          <Route
+            path="/reset-password/:token"
+            element={
+              <GuestRoute>
+                <ResetPassword />
+              </GuestRoute>
+            }
+          />
 
           <Route
             path="/home"
             element={
               <AppLayout>
                 <Home />
-              </AppLayout>
-            }
-          />
-
-          <Route
-            path="/approve-user"
-            element={
-              <AppLayout>
-                <ApproveUser />
-              </AppLayout>
-            }
-          />
-
-          <Route
-            path="/recipes"
-            element={
-              <AppLayout>
-                <RecipesList />
-              </AppLayout>
-            }
-          />
-
-          <Route
-            path="/add-recipes"
-            element={
-              <AppLayout>
-                <AddRecipes />
               </AppLayout>
             }
           />
@@ -87,6 +93,15 @@ function App() {
           />
 
           <Route
+            path="/recipes"
+            element={
+              <AppLayout>
+                <RecipesList />
+              </AppLayout>
+            }
+          />
+
+          <Route
             path="/recipe/:slug"
             element={
               <AppLayout>
@@ -96,11 +111,35 @@ function App() {
           />
 
           <Route
+            path="/add-recipes"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <AddRecipes />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
             path="/recipes/edit/:slug"
             element={
-              <AppLayout>
-                <EditRecipePage />
-              </AppLayout>
+              <ProtectedRoute>
+                <AppLayout>
+                  <EditRecipePage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/approve-user"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <ApproveUser />
+                </AppLayout>
+              </ProtectedRoute>
             }
           />
 

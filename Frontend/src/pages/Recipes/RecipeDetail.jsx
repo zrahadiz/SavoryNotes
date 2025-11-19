@@ -56,9 +56,7 @@ export default function RecipeDetail() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [checkedIngredients, setCheckedIngredients] = useState([]);
 
-  const isOwner = user?._id === recipe?.createdBy?._id;
   const isAdmin = user?.role === "admin";
-  const canEdit = isOwner || isAdmin;
 
   const fetchRecipe = async () => {
     try {
@@ -294,7 +292,7 @@ export default function RecipeDetail() {
       {/* Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Admin Actions */}
-        {canEdit && (
+        {isAdmin && (
           <div className="bg-orange-50 border-2 border-orange-200 rounded-2xl p-4 mb-8 flex flex-wrap gap-3">
             <span className="text-orange-700 font-semibold flex items-center gap-2">
               🔐 Admin Controls
