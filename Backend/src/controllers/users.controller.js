@@ -5,18 +5,48 @@ const { sendEmail } = require("../utils/nodeMailer");
 
 const getPendingUsers = async (req, res) => {
   try {
-    const page = Number(req.query.page) || 1;
-    const limit = 10;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-    const users = await User.find({ status: "pending" })
-      .select("-password")
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit);
+    const { search } = req.query;
 
-    response(200, true, users, "Get Pending User Success", res);
+    const query = { status: "pending" };
+
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const [users, total] = await Promise.all([
+      User.find(query)
+        .select("-password")
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 }),
+
+      User.countDocuments(query),
+    ]);
+
+    const pagination = {
+      total: total,
+      prev: page > 1 ? page - 1 : null,
+      next: page * limit < total ? page + 1 : null,
+      max: Math.ceil(total / limit),
+    };
+
+    return response(
+      200,
+      true,
+      users,
+      "Get Pending User Success",
+      res,
+      pagination
+    );
   } catch (error) {
-    response(500, false, null, error.message, res);
+    return response(500, false, null, error.message, res);
   }
 };
 
