@@ -1,9 +1,15 @@
 const { User } = require("../models");
+const crypto = require("crypto");
+const dotenv = require("dotenv");
 
 const { comparePassword } = require("../utils/password");
 const { generateToken, generateRefreshToken } = require("../utils/jwt");
 const { response } = require("../utils/formatResponse");
 const { sendEmail } = require("../utils/nodeMailer");
+const generateResetToken = require("../utils/generateToken");
+
+dotenv.config();
+const minutes = Number(process.env.RESET_TOKEN_EXPIRES_MIN || 60);
 
 const register = async (req, res) => {
   try {
@@ -166,15 +172,112 @@ const refreshToken = async (req, res) => {
       message: "Access token refreshed",
     });
   } catch (err) {
-    return res
-      .status(403)
-      .json({ success: false, message: "Refresh token expired" });
+    return response(403, false, null, error.message, res);
   }
 };
 
 const checkAuth = async (req, res) => {
   const accessToken = req.cookies?.accessToken;
   res.json({ loggedIn: !!accessToken });
+};
+
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return response(400, false, null, "Email is required", res);
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return response(
+        200,
+        true,
+        null,
+        "If an account with that email exists, a password reset link has been sent.",
+        res
+      );
+    }
+
+    const { token, hashedToken } = generateResetToken();
+
+    const expires = Date.now() + minutes * 60 * 1000;
+
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpires = new Date(expires);
+
+    await user.save();
+
+    // Build reset link
+    const resetUrl = `${process.env.FRONTEND_URL.replace(
+      /\/$/,
+      ""
+    )}/reset-password/${token}`;
+
+    // Email content — keep plain text and HTML
+    const subject = "Reset your password";
+    const html = `
+      <p>You requested a password reset.</p>
+      <p>Click the link below to reset your password (valid for ${minutes} minutes):</p>
+      <p><a href="${resetUrl}">Reset Password</a></p>
+      <p>If you did not request this, you can safely ignore this email.</p>
+    `;
+
+    await sendEmail(user.email, subject, html);
+
+    return response(
+      200,
+      true,
+      null,
+      "If an account with that email exists, a password reset link has been sent.",
+      res
+    );
+  } catch (error) {
+    console.error("forgotPassword error", error);
+    return response(500, false, null, error.message || "Server error", res);
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return response(
+        400,
+        false,
+        null,
+        "Token and newPassword are required",
+        res
+      );
+    }
+
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return response(400, false, null, "Invalid or expired token", res);
+    }
+
+    user.password = newPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+
+    await user.save();
+
+    return response(
+      200,
+      true,
+      null,
+      "Password has been reset successfully",
+      res
+    );
+  } catch (error) {
+    console.error("resetPassword error:", error);
+    return response(500, false, null, "Server error", res);
+  }
 };
 
 module.exports = {
@@ -184,4 +287,6 @@ module.exports = {
   me,
   refreshToken,
   checkAuth,
+  forgotPassword,
+  resetPassword,
 };

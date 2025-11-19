@@ -70,7 +70,6 @@ export default function SavoryNotesHome() {
     params.append("limit", 6);
     try {
       const { data } = await api.get(`/posts?${params.toString()}`);
-      console.log(data);
       setRecipes(data.payload.datas);
     } catch (error) {
       console.error(error);
@@ -138,7 +137,7 @@ export default function SavoryNotesHome() {
           </div>
 
           <div className="flex flex-wrap gap-2 mt-5">
-            {["Vegan", "Keto", "Gluten-Free", "Dairy-Free", "Noodle"].map(
+            {["Vegetarian", "High-Protein", "Sweet", "No-Bake", "Baking"].map(
               (tag) => (
                 <button
                   key={tag}

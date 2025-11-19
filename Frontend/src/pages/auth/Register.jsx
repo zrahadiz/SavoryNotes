@@ -3,14 +3,15 @@ import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 
 import api from "@/api/axios";
-
 import { toast } from "@/lib/toast";
+import authLeftImg from "@/assets/authLeftImg.jpeg";
 import Loading from "@/components/Loading";
-
-import { FcGoogle } from "react-icons/fc";
 
 export default function Login() {
   const navigate = useNavigate();
+
+  const [loadingState, setLoadingState] = useState(false);
+  const [loadingText, setLoadingText] = useState("");
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -19,9 +20,6 @@ export default function Login() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [repeatShowPassword, setRepeatShowPassword] = useState(false);
-
-  const [loadingState, setLoadingState] = useState(false);
-  const [loadingText, setLoadingText] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -71,7 +69,7 @@ export default function Login() {
           className="hidden lg:block relative"
         >
           <img
-            src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1200&auto=format&fit=crop"
+            src={authLeftImg}
             alt="Cooking background"
             className="object-cover w-full h-full"
           />
@@ -237,15 +235,8 @@ export default function Login() {
                 <div className="space-y-3">
                   <button
                     type="button"
-                    className="btn btn-outline w-full gap-2 hover:bg-gray-50"
-                  >
-                    <FcGoogle className="w-5 h-5" />
-                    Continue with Google
-                  </button>
-                  <button
-                    type="button"
                     onClick={() => navigate("/home")}
-                    className="btn btn-ghost w-full text-gray-700 hover:bg-gray-100 transition"
+                    className="btn btn-outline w-full text-gray-700 hover:bg-gray-100 transition"
                   >
                     Continue without login
                   </button>

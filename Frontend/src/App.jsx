@@ -17,6 +17,8 @@ import EditRecipePage from "./pages/Recipes/EditRecipes";
 import RecipeDetail from "./pages/Recipes/RecipeDetail";
 import About from "./pages/About";
 import ApproveUser from "./pages/ApproveUser";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
 
 function App() {
   const { checkAuth, fetchUser } = useAuthStore();
@@ -35,8 +37,9 @@ function App() {
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
-
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
 
           <Route
             path="/home"
