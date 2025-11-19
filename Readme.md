@@ -52,9 +52,9 @@ Create a `.env` file in the backend directory (see `.env.example` below):
 PORT=5000
 
 # Database
-MONGODB_URI=mongodb://localhost:27017/recipe-app
+MONGODB_URI=mongo_uri
 # Or use MongoDB Atlas:
-# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/recipe-app
+# MONGODB_URI=mongo_atlas_uri
 
 # JWT Secret
 JWT_SECRET=your_super_secret_jwt_key_here_change_in_production
