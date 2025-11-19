@@ -206,13 +206,11 @@ const forgotPassword = async (req, res) => {
 
     await user.save();
 
-    // Build reset link
     const resetUrl = `${process.env.FRONTEND_URL.replace(
       /\/$/,
       ""
     )}/reset-password/${token}`;
 
-    // Email content — keep plain text and HTML
     const subject = "Reset your password";
     const html = `
       <p>You requested a password reset.</p>
