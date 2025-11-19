@@ -37,7 +37,7 @@ const getCategoryColor = (category) => {
 
 const getDifficultyColor = (difficulty) => {
   const colors = {
-    easy: "text-green-600",
+    easy: "text-blue-600",
     medium: "text-yellow-600",
     hard: "text-red-600",
   };
@@ -144,7 +144,7 @@ export default function RecipeCard({
 
         {/* Content */}
         <div className="p-5 flex-1 flex flex-col">
-          <h3 className="text-xl font-bold mb-2 text-gray-800 leading-tight line-clamp-2 group-hover:text-orange-600 transition-colors duration-200">
+          <h3 className="text-xl font-bold mb-2 text-gray-800 leading-tight line-clamp-2 group-hover:text-primary transition-colors duration-200">
             {recipe.title}
           </h3>
 
@@ -157,14 +157,14 @@ export default function RecipeCard({
               {recipe.tags.slice(0, 4).map((tag, index) => (
                 <span
                   key={index}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 hover:bg-orange-100 text-gray-700 hover:text-orange-700 rounded-full text-xs font-medium transition-colors duration-200 cursor-default"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 hover:bg-green-100 text-gray-700 hover:text-green-700 rounded-full text-xs font-medium transition-colors duration-200 cursor-default"
                 >
                   <HiTag className="w-3 h-3" />
                   {tag}
                 </span>
               ))}
               {recipe.tags.length > 4 && (
-                <span className="inline-flex items-center px-2.5 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">
+                <span className="inline-flex items-center px-2.5 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
                   +{recipe.tags.length - 4}
                 </span>
               )}
@@ -187,7 +187,7 @@ export default function RecipeCard({
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center ${
                   recipe.difficulty?.toLowerCase() === "easy"
-                    ? "bg-green-50"
+                    ? "bg-blue-50"
                     : recipe.difficulty?.toLowerCase() === "medium"
                     ? "bg-yellow-50"
                     : "bg-red-50"
