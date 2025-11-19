@@ -93,8 +93,6 @@ const chatBot = async (req, res) => {
 
     const recipeContext = `You are a helpful cooking assistant helping a user with this recipe:
       **Recipe Title:** ${recipe.title}
-      **Category:** ${recipe.category}
-      **Difficulty:** ${recipe.difficulty}
       **Servings:** ${recipe.servings}
       **Total Time:** ${recipe.time} minutes
       ${recipe.prepTime ? `**Prep Time:** ${recipe.prepTime} minutes` : ""}
@@ -110,12 +108,6 @@ const chatBot = async (req, res) => {
       **Instructions:**
       ${recipe.content || "No instructions provided"}
 
-      ${
-        recipe.tags && recipe.tags.length > 0
-          ? `**Tags:** ${recipe.tags.join(", ")}`
-          : ""
-      }
-
       ---
 
       Your role:
@@ -130,14 +122,27 @@ const chatBot = async (req, res) => {
       Keep responses brief (2-3 paragraphs max) unless the user asks for detailed explanations.
       `;
 
-    const chatText = [
-      `SYSTEM: ${recipeContext}`,
-      ...messages.map((m) => `${m.role.toUpperCase()}: ${m.content}`),
-    ].join("\n\n");
+    const MAX_HISTORY = 6;
+    const recentMessages = messages.slice(-MAX_HISTORY);
+
+    const contents = [
+      {
+        role: "user",
+        parts: [{ text: recipeContext }],
+      },
+      ...recentMessages.map((m) => ({
+        role: m.role === "assistant" ? "model" : "user",
+        parts: [{ text: m.content }],
+      })),
+    ];
 
     const aiResponse = await ai.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: chatText,
+      contents: contents,
+      generationConfig: {
+        maxOutputTokens: 500,
+        temperature: 0.7,
+      },
     });
 
     const aiMessage = aiResponse.text;
