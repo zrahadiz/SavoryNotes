@@ -74,9 +74,10 @@ CLOUD_NAME=your_cloud_name
 CLOUD_API_KEY=your_api_key
 CLOUD_API_SECRET=your_api_secret
 
-#Nodemailer
-EMAIL_USER=your_email
-EMAIL_PASS=your_email_app_pass
+#Nodemailer (Mailersend SMTP)
+MAILERSEND_SMTP_USER=your_smtp_username_here
+MAILERSEND_SMTP_PASS=your_smtp_password_here
+MAILERSEND_FROM=your_smtp_email
 ```
 
 Start the backend server:
