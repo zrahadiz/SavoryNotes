@@ -45,7 +45,7 @@ cd backend
 npm install
 ```
 
-Create a `.env` file in the backend directory (see `.env.example` below):
+Create a `.env` file in the backend directory with the following configuration:
 
 ```env
 # Server Configuration
@@ -60,13 +60,13 @@ MONGODB_URI=mongo_uri
 JWT_SECRET=your_super_secret_jwt_key_here_change_in_production
 REFRESH_TOKEN_SECRET=your_super_secret_jwt_refresh_key_here_change_in_production
 
-#Reset Password Token
-RESET_TOKEN_EXPIRES_MIN=(ex: 60)
+# Reset Password Token
+RESET_TOKEN_EXPIRES_MIN=60
 
 # Google Gemini AI
 GOOGLE_GENAI_API_KEY=your_gemini_api_key_here
 
-# Client Url
+# Client URL
 FRONTEND_URL=http://localhost:5173
 
 # Cloudinary (Optional - for image uploads)
@@ -74,17 +74,87 @@ CLOUD_NAME=your_cloud_name
 CLOUD_API_KEY=your_api_key
 CLOUD_API_SECRET=your_api_secret
 
-#Nodemailer (Mailersend SMTP)
+# Nodemailer (MailerSend SMTP)
 MAILERSEND_SMTP_USER=your_smtp_username_here
 MAILERSEND_SMTP_PASS=your_smtp_password_here
 MAILERSEND_FROM=your_smtp_email
 ```
 
-Start the backend server:
+---
+
+### 📧 Email Configuration
+
+The following `sendEmail` calls are currently commented out. **Uncomment them to enable email notifications** in your local environment.
+
+> ⚠️ **Note:** Email functionality requires proper SMTP configuration (see Nodemailer settings in `.env` above).
+
+#### Files to Update:
+
+##### **1. auth.controller.js** (Line 31-36)
+
+_Account request confirmation email_
+
+```javascript
+await sendEmail(
+  email,
+  "Your account request has been received",
+  `
+    <h2>Hi ${name},</h2>
+    <p>Your account request has been submitted. You will be notified once approved.</p>
+  `
+);
+```
+
+##### **2. auth.controller.js** (Line 222)
+
+_Password reset email_
+
+```javascript
+await sendEmail(user.email, subject, html);
+```
+
+##### **3. users.controller.js** (Line 77-90)
+
+_Account approval/rejection emails_
+
+```javascript
+if (approved == true) {
+  await sendEmail(
+    user.email,
+    "Your account has been approved",
+    `
+      <h2>Congratulations! Your account is now approved.</h2>
+      <p>You can now login.</p>
+    `
+  );
+} else {
+  await sendEmail(
+    user.email,
+    "Your account request was rejected",
+    `
+      <h2>We're sorry, but your account request was not approved.</h2>
+    `
+  );
+}
+```
+
+#### Email Summary Table
+
+| File                  | Line(s) | Trigger Event                      |
+| --------------------- | ------- | ---------------------------------- |
+| `auth.controller.js`  | 31-36   | New account request submitted      |
+| `auth.controller.js`  | 222     | Password reset requested           |
+| `users.controller.js` | 77-90   | Account approved/rejected by admin |
+
+---
+
+### 🚀 Start the Backend Server
 
 ```bash
 npm run dev
 ```
+
+The backend server will run on `http://localhost:5000` (or your configured PORT).
 
 #### 3. Frontend Setup
 

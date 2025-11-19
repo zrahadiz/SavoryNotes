@@ -74,20 +74,20 @@ const approveUser = async (req, res) => {
 
     await user.save();
 
-    if (approved == true) {
-      await sendEmail(
-        user.email,
-        "Your account has been approved",
-        `<p>Congratulations! Your account is now approved.</p>
-       <p>You can now login.</p>`
-      );
-    } else {
-      await sendEmail(
-        user.email,
-        "Your account request was rejected",
-        `<p>We're sorry, but your account request was not approved.</p>`
-      );
-    }
+    // if (approved == true) {
+    //   await sendEmail(
+    //     user.email,
+    //     "Your account has been approved",
+    //     `<p>Congratulations! Your account is now approved.</p>
+    //    <p>You can now login.</p>`
+    //   );
+    // } else {
+    //   await sendEmail(
+    //     user.email,
+    //     "Your account request was rejected",
+    //     `<p>We're sorry, but your account request was not approved.</p>`
+    //   );
+    // }
 
     response(
       200,
