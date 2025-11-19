@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { HiInformationCircle, HiEye, HiEyeOff } from "react-icons/hi";
+
 import RecipeInstructions from "./RecipeInstructions";
+
+import { HiInformationCircle, HiEye, HiEyeOff } from "react-icons/hi";
 
 export default function InstructionsInput({ value, onChange, ...props }) {
   const [showPreview, setShowPreview] = useState(false);

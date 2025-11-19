@@ -98,8 +98,8 @@ export default function RecipeInstructions({ content }) {
             key={index}
             className="flex gap-4 p-4 bg-gray-50 rounded-xl hover:bg-green-50 transition group"
           >
-            <div className="flex-shrink-0">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white font-bold shadow-md group-hover:scale-110 transition">
+            <div className="shrink-0">
+              <div className="w-10 h-10 rounded-full bg-linear-to-br from-green-500 to-green-600 flex items-center justify-center text-white font-bold shadow-md group-hover:scale-110 transition">
                 {instruction.number}
               </div>
             </div>
@@ -128,7 +128,7 @@ export function SimpleInstructions({ content }) {
     <ol className="space-y-4">
       {steps.map((step) => (
         <li key={step.number} className="flex gap-4">
-          <span className="flex-shrink-0 w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center font-bold">
+          <span className="shrink-0 w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center font-bold">
             {step.number}
           </span>
           <p className="flex-1 text-gray-700 leading-relaxed pt-1">

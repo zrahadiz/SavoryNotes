@@ -1,4 +1,8 @@
 import { useState, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+
+import { toastSubscribe } from "@/lib/toast";
+
 import {
   FiX,
   FiInfo,
@@ -6,8 +10,6 @@ import {
   FiAlertTriangle,
   FiXCircle,
 } from "react-icons/fi";
-import { AnimatePresence, motion } from "framer-motion";
-import { toastSubscribe } from "@/lib/toast";
 
 export default function CustomToaster() {
   const [toasts, setToasts] = useState([]);

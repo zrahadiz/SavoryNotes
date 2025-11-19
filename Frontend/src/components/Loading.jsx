@@ -5,7 +5,7 @@ export default function Loading({
   text = "Loading...",
   fullscreen = false,
 }) {
-  if (!status) return null; // if false, don't render anything
+  if (!status) return null;
 
   return (
     <div

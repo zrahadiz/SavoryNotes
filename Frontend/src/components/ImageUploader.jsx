@@ -1,15 +1,17 @@
 import { useState, useEffect, useRef } from "react";
-import { HiPhotograph, HiX } from "react-icons/hi";
+
 import imgNotFound from "@/assets/imgNotFound.png";
+
+import { HiPhotograph, HiX } from "react-icons/hi";
 
 export default function ImageUploader({
   maxFiles = 5,
   maxSizeMB = 5,
-  previousImages = [], // URLs or File objects
+  previousImages = [],
   onChange,
 }) {
-  const [images, setImages] = useState([]); // stores File OR URL
-  const [previews, setPreviews] = useState([]); // stores preview URLs
+  const [images, setImages] = useState([]);
+  const [previews, setPreviews] = useState([]);
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState("");
   const isInitialized = useRef(false);
@@ -27,9 +29,8 @@ export default function ImageUploader({
       );
       isInitialized.current = true;
     }
-  }, [previousImages]); // Empty dependency - only run once on mount
+  }, [previousImages]);
 
-  // Cleanup object URLs on unmount
   useEffect(() => {
     return () => {
       previews.forEach((url) => {
@@ -77,7 +78,6 @@ export default function ImageUploader({
   };
 
   const handleRemoveImage = (index) => {
-    // Revoke object URL if it's a blob
     if (previews[index] && previews[index].startsWith("blob:")) {
       URL.revokeObjectURL(previews[index]);
     }
@@ -144,7 +144,7 @@ export default function ImageUploader({
           className="hidden"
           onChange={(e) => {
             handleFiles(e.target.files);
-            e.target.value = ""; // Reset input to allow same file upload
+            e.target.value = "";
           }}
         />
       </label>

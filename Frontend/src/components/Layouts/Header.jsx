@@ -1,5 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useAuthStore } from "@/store/authStore";
+
+import SearchDrawer from "../SearchDrawer";
+
 import {
   HiMenu,
   HiX,
@@ -8,8 +12,6 @@ import {
   HiLogout,
   HiBell,
 } from "react-icons/hi";
-import { useAuthStore } from "@/store/authStore";
-import SearchDrawer from "../SearchDrawer";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

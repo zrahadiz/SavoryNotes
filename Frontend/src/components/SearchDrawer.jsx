@@ -1,4 +1,11 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
+import api from "@/api/axios";
+import { toast } from "@/lib/toast";
+
+import imgNotFound from "@/assets/imgNotFound.png";
+
 import {
   HiX,
   HiSearch,
@@ -10,10 +17,6 @@ import {
   HiChevronRight,
   HiTag,
 } from "react-icons/hi";
-import { toast } from "@/lib/toast";
-import api from "@/api/axios";
-import imgNotFound from "@/assets/imgNotFound.png";
-import { useNavigate } from "react-router-dom";
 
 const categoryList = {
   ALL: "all",

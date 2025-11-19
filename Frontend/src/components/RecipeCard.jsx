@@ -1,4 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import api from "@/api/axios";
+import { toast } from "@/lib/toast";
+import Loading from "@/components/Loading";
+
+import imgNotFound from "@/assets/imgNotFound.png";
+
 import {
   HiClock,
   HiFire,
@@ -9,11 +17,6 @@ import {
   HiTag,
   HiEye,
 } from "react-icons/hi";
-import imgNotFound from "@/assets/imgNotFound.png";
-import { useNavigate } from "react-router-dom";
-import api from "@/api/axios";
-import { toast } from "@/lib/toast";
-import Loading from "@/components/Loading";
 
 const getCategoryColor = (category) => {
   const colors = {
@@ -141,17 +144,14 @@ export default function RecipeCard({
 
         {/* Content */}
         <div className="p-5 flex-1 flex flex-col">
-          {/* Title */}
           <h3 className="text-xl font-bold mb-2 text-gray-800 leading-tight line-clamp-2 group-hover:text-orange-600 transition-colors duration-200">
             {recipe.title}
           </h3>
 
-          {/* Description */}
           <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
             {recipe.description}
           </p>
 
-          {/* Tags */}
           {recipe.tags && recipe.tags.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mb-4">
               {recipe.tags.slice(0, 4).map((tag, index) => (
@@ -173,7 +173,6 @@ export default function RecipeCard({
 
           <div className="flex-1" />
 
-          {/* Meta Info */}
           <div className="grid grid-cols-3 gap-3 py-4 border-t border-gray-100">
             <div className="flex flex-col items-center gap-1.5">
               <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center">
@@ -213,7 +212,6 @@ export default function RecipeCard({
             </div>
           </div>
 
-          {/* View Recipe Button */}
           <button
             onClick={() => navigate(`/recipe/${recipe.slug}`)}
             className="w-full mt-4 py-3 bg-linear-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer"

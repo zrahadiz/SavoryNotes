@@ -1,4 +1,7 @@
 import { useState, useRef, useEffect } from "react";
+
+import api from "@/api/axios";
+
 import {
   HiChat,
   HiX,
@@ -6,7 +9,6 @@ import {
   HiLightBulb,
   HiRefresh,
 } from "react-icons/hi";
-import api from "@/api/axios";
 
 const quickQuestions = [
   "Can I substitute an ingredient?",

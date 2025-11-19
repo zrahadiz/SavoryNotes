@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { FaCircleLeft, FaCircleRight } from "react-icons/fa6";
+
 import RecipeCard from "@/components/RecipeCard";
+
+import { FaCircleLeft, FaCircleRight } from "react-icons/fa6";
 
 export default function RecipeCarousel({ popularRecipes }) {
   const [currentSlide, setCurrentSlide] = useState(0);
