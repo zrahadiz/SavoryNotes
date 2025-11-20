@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const { comparePassword } = require("../utils/password");
 const { generateToken, generateRefreshToken } = require("../utils/jwt");
 const { response } = require("../utils/formatResponse");
-const { sendEmail } = require("../utils/nodeMailer");
+const { sendEmail } = require("../utils/sendMail");
 const generateResetToken = require("../utils/generateToken");
 
 dotenv.config();
@@ -29,12 +29,12 @@ const register = async (req, res) => {
       status: "pending",
     });
 
-    // await sendEmail(
-    //   email,
-    //   "Your account request has been received",
-    //   `<p>Hi ${name},</p>
-    //    <p>Your account request has been submitted. You will be notified once approved.</p>`
-    // );
+    await sendEmail(
+      email,
+      "Your account request has been received",
+      `<p>Hi ${name},</p>
+       <p>Your account request has been submitted. You will be notified once approved.</p>`
+    );
 
     return response(
       201,
@@ -205,7 +205,7 @@ const forgotPassword = async (req, res) => {
       <p>If you did not request this, you can safely ignore this email.</p>
     `;
 
-    // await sendEmail(user.email, subject, html);
+    await sendEmail(user.email, subject, html);
 
     return response(
       200,

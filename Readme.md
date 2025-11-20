@@ -74,77 +74,10 @@ CLOUD_NAME=your_cloud_name
 CLOUD_API_KEY=your_api_key
 CLOUD_API_SECRET=your_api_secret
 
-# Nodemailer (MailerSend SMTP)
-MAILERSEND_SMTP_USER=your_smtp_username_here
-MAILERSEND_SMTP_PASS=your_smtp_password_here
-MAILERSEND_FROM=your_smtp_email
+# Resend Mail API
+RESEND_API_KEY=re_your_api_key_here
+RESEND_FROM_EMAIL=onboarding@resend.dev
 ```
-
----
-
-### 📧 Email Configuration
-
-The following `sendEmail` calls are currently commented out because it's not working in the deployment for now. **Uncomment them to enable email notifications** in your local environment.
-
-> ⚠️ **Note:** Email functionality requires proper SMTP configuration (see Nodemailer settings in `.env` above).
-
-#### Files to Update:
-
-##### **1. auth.controller.js** (Line 31-36)
-
-_Account request confirmation email_
-
-```javascript
-await sendEmail(
-  email,
-  "Your account request has been received",
-  `
-    <h2>Hi ${name},</h2>
-    <p>Your account request has been submitted. You will be notified once approved.</p>
-  `
-);
-```
-
-##### **2. auth.controller.js** (Line 222)
-
-_Password reset email_
-
-```javascript
-await sendEmail(user.email, subject, html);
-```
-
-##### **3. users.controller.js** (Line 77-90)
-
-_Account approval/rejection emails_
-
-```javascript
-if (approved == true) {
-  await sendEmail(
-    user.email,
-    "Your account has been approved",
-    `
-      <h2>Congratulations! Your account is now approved.</h2>
-      <p>You can now login.</p>
-    `
-  );
-} else {
-  await sendEmail(
-    user.email,
-    "Your account request was rejected",
-    `
-      <h2>We're sorry, but your account request was not approved.</h2>
-    `
-  );
-}
-```
-
-#### Email Summary Table
-
-| File                  | Line(s) | Trigger Event                      |
-| --------------------- | ------- | ---------------------------------- |
-| `auth.controller.js`  | 31-36   | New account request submitted      |
-| `auth.controller.js`  | 222     | Password reset requested           |
-| `users.controller.js` | 77-90   | Account approved/rejected by admin |
 
 ---
 
@@ -155,6 +88,50 @@ npm run dev
 ```
 
 The backend server will run on `http://localhost:5000` (or your configured PORT).
+
+## 📧 Email Configuration
+
+### ⚠️ Current Status
+
+Email functionality in the **deployed version** is currently unavailable due to pending domain verification with Resend.
+
+---
+
+### 🧪 Testing Locally
+
+You can test email features in your local environment:
+
+#### Prerequisites:
+
+1. **Sign up** for a free account at [resend.com](https://resend.com)
+2. **Get your API key** from the Resend dashboard
+
+#### Setup:
+
+Add these to your `.env` file:
+
+```env
+RESEND_API_KEY=re_your_api_key_here
+RESEND_FROM_EMAIL=onboarding@resend.dev
+```
+
+#### 📌 Important Limitations:
+
+- Emails can **only be sent to email addresses** you've added to your Resend account
+- To add test recipients:
+  1. Go to Resend Dashboard → **Settings** → **Team**
+  2. Invite the email addresses you want to test with
+- The sender will show as `onboarding@resend.dev` (Resend's test domain)
+
+---
+
+### 🚀 Production Deployment
+
+Once domain verification is complete, emails will be sent from `noreply@savorynotes.biz.id` and can reach any recipient.
+
+**Status:** ⏳ Pending DNS verification
+
+---
 
 #### 3. Frontend Setup
 
@@ -244,7 +221,7 @@ SavoryNotes/
 │   │   ├── formatResponse.js    # Standardized API responses
 │   │   ├── generateToken.js     # generate reset token
 │   │   ├── jwt.js               # generate JWT token
-│   │   ├── nodeMailer.js        # nodemailer setup
+│   │   ├── sendMail.js          # email setup
 │   │   ├── password.js          # pass hash and compare helper
 │   │   └── slugify.js           # Slug generation
 │   ├── .env                     # Environment variables
