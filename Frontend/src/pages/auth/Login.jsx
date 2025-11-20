@@ -27,14 +27,24 @@ export default function Login() {
     try {
       const { data } = await api.post("/auth/login", { email, password });
       console.log(data);
-      setUser(data.payload.datas);
+
+      if (data.payload.datas.accessToken) {
+        localStorage.setItem("accessToken", data.payload.datas.accessToken);
+      }
+      if (data.payload.datas.refreshToken) {
+        localStorage.setItem("refreshToken", data.payload.datas.refreshToken);
+      }
+
+      const { accessToken, refreshToken, ...userData } = data.payload.datas;
+      setUser(userData);
+
       toast(data.payload.message || "Login Success", {
         type: "success",
       });
       navigate("/home", { replace: true });
     } catch (error) {
       console.error(error.response || "Failed to login");
-      toast(error.response.data.payload.message || "Failed to login", {
+      toast(error.response?.data?.payload?.message || "Failed to login", {
         type: "error",
       });
     } finally {

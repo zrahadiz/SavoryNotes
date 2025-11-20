@@ -278,11 +278,11 @@ export default function Header() {
             {/* Auth Section */}
             {!isAuthenticated ? (
               <Link
-                to="/register"
+                to="/login"
                 onClick={closeMenu}
                 className="block w-full text-center py-3 rounded-xl bg-linear-to-r from-orange-500 to-orange-600 text-white font-semibold hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-md mt-4"
               >
-                Register
+                Login
               </Link>
             ) : (
               <div className="pt-4 border-t border-gray-200">

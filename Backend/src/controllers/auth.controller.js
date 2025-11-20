@@ -1,6 +1,7 @@
 const { User } = require("../models");
 const crypto = require("crypto");
 const dotenv = require("dotenv");
+const jwt = require("jsonwebtoken");
 
 const { comparePassword } = require("../utils/password");
 const { generateToken, generateRefreshToken } = require("../utils/jwt");
@@ -83,20 +84,6 @@ const login = async (req, res) => {
     const token = generateToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    res.cookie("accessToken", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 24 * 60 * 60 * 1000,
-    });
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
     return response(
       200,
       true,
@@ -105,6 +92,8 @@ const login = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        accessToken: token,
+        refreshToken: refreshToken,
       },
       "Login successfully",
       res
@@ -141,7 +130,9 @@ const me = async (req, res) => {
 };
 
 const refreshToken = async (req, res) => {
-  const token = req.cookies?.refreshToken;
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(" ")[1];
+
   if (!token) {
     return res
       .status(401)
@@ -158,27 +149,22 @@ const refreshToken = async (req, res) => {
         .json({ success: false, message: "Invalid refresh token" });
     }
 
-    const newAccessToken = generateAccessToken(user);
-
-    res.cookie("accessToken", newAccessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 15 * 60 * 1000,
-    });
+    const newAccessToken = generateToken(user);
 
     return res.json({
       success: true,
       message: "Access token refreshed",
+      accessToken: newAccessToken,
     });
   } catch (err) {
-    return response(403, false, null, error.message, res);
+    return res.status(403).json({ success: false, message: err.message });
   }
 };
 
 const checkAuth = async (req, res) => {
-  const accessToken = req.cookies?.accessToken;
-  res.json({ loggedIn: !!accessToken });
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(" ")[1];
+  res.json({ loggedIn: !!token });
 };
 
 const forgotPassword = async (req, res) => {

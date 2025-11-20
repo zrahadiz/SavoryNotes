@@ -33,7 +33,7 @@ function App() {
       }
     }
     init();
-  }, []);
+  }, [checkAuth, fetchUser]);
   return (
     <>
       <Router>

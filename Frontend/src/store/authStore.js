@@ -4,24 +4,42 @@ import api from "@/api/axios";
 export const useAuthStore = create((set) => ({
   user: null,
   isAuthenticated: false,
-  loading: true,
 
   setUser: (user) => {
     set({ user, isAuthenticated: true });
   },
+
   checkAuth: async () => {
     try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        set({ isAuthenticated: false });
+        return false;
+      }
+
       const { data } = await api.get("/auth/check");
       set({ isAuthenticated: data.loggedIn });
       return data.loggedIn;
     } catch (e) {
-      set({ isAuthenticated: false });
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      set({ isAuthenticated: false, user: null });
       return false;
     }
   },
 
   fetchUser: async () => {
     try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        set({
+          user: null,
+          isAuthenticated: false,
+          loading: false,
+        });
+        return;
+      }
+
       const { data } = await api.get("/auth/me");
       set({
         user: data.payload.datas,
@@ -29,6 +47,8 @@ export const useAuthStore = create((set) => ({
         loading: false,
       });
     } catch (error) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
       set({
         user: null,
         isAuthenticated: false,
@@ -37,9 +57,9 @@ export const useAuthStore = create((set) => ({
     }
   },
 
-  logout: async () => {
-    await api.post("/auth/logout");
-
+  logout: () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
     set({
       user: null,
       isAuthenticated: false,
