@@ -93,7 +93,7 @@ The backend server will run on `http://localhost:5000` (or your configured PORT)
 
 ### ⚠️ Current Status
 
-Email functionality in the **deployed version** is currently unavailable due to pending domain verification with Resend.
+Email functionality in the **deployed version** is now available my Resend domain verification now verified.
 
 ---
 
@@ -129,7 +129,7 @@ RESEND_FROM_EMAIL=onboarding@resend.dev
 
 Once domain verification is complete, emails will be sent from `noreply@savorynotes.biz.id` and can reach any recipient.
 
-**Status:** ⏳ Pending DNS verification
+**Status:** ✅ Domain Verified
 
 ---
 
@@ -323,10 +323,35 @@ POST   /api/users/approve       # Approve a pending user (Admin, Protected)
 
 ### Admin Panel
 
+#### User Registration & Approval Flow
+
+**Registration Process:**
+
+1. 👤 **User registers** → Account created with `pending` status
+2. 🚫 **Login blocked** → User cannot login until approved
+3. 📧 **Confirmation email** → User receives "Registration received" notification
+4. ⏳ **Awaits approval** → Admin reviews the registration request
+
+**Admin Review Process:**
+
+5. 👨‍💼 **Admin reviews** → Pending users appear in Admin Panel
+6. ✅/❌ **Admin decides** → Approve or reject the registration
+7. 📨 **Automated notification** → User receives email with decision
+
+**Post-Approval:**
+
+- ✅ **If Approved** → User receives "Account Approved" email and can now login
+- ❌ **If Rejected** → User receives "Request Rejected" email and cannot login
+
+---
+
+#### Admin Features
+
 - ✅ Pending user approval system
-- ✅ User management for Admin (view, approve, reject)
+- ✅ User management (view, approve, reject)
 - ✅ Paginated user list
 - ✅ Search users by name/email
+- ✅ Automated email notifications for registration and approval status
 
 ### UI/UX
 
@@ -515,6 +540,9 @@ Get your free Gemini API key from [Google AI Studio](https://makersuite.google.c
 Admin Account:
 Email: test@admin.com
 Password: 12345678
+
+Email: test2@admin.com
+Password: admin123
 ```
 
 ---
