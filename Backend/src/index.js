@@ -20,13 +20,14 @@ app.use(
   cors({
     origin: process.env.FRONTEND_URL,
     credentials: true,
-  })
+  }),
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 connectDB();
+//test deploy
 
 app.get("/", (req, res) => {
   res.send("Hello World 222!");
